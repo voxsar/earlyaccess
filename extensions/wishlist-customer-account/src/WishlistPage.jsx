@@ -3,10 +3,9 @@
  * Displays customer's wishlist with product cards and management features
  */
 
-/** @jsx h */
-/** @jsxFrag Fragment */
+/** @jsxImportSource preact */
 import '@shopify/ui-extensions/customer-account';
-import { h, Fragment, render } from 'preact';
+import { render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 export default async () => {
