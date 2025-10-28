@@ -1,6 +1,9 @@
 api_version = "2025-10"
 
 [[extensions]]
+
+uid = "ad707482-f693-7eb6-4c7c-1f61fd3763d77694bb92"
+
 type = "ui_extension"
 name = "Wishlist Management"
 handle = "wishlist-admin"

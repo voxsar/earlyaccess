@@ -1,13 +1,13 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 name = "earlyaccess-wishlist"
-client_id = ""
+client_id = "16219b19753712792809a9b624aa5342"
 application_url = "https://shopify.dev/apps/default-app-home"
 embedded = true
 
 [build]
 automatically_update_urls_on_dev = true
-dev_store_url = ""
+dev_store_url = "artslab-plugin-test.myshopify.com"
 
 [access_scopes]
 # Customer access scopes for reading and writing customer data including metafields
