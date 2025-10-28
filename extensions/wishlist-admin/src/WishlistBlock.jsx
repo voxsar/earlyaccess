@@ -3,8 +3,10 @@
  * Displays customer's wishlist in the admin customer details page
  */
 
+/** @jsx h */
+/** @jsxFrag Fragment */
 import '@shopify/ui-extensions/admin';
-import { render } from 'preact';
+import { h, Fragment, render } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
 
 export default async (root) => {
