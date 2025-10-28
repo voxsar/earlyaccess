@@ -19,7 +19,7 @@ export default reactExtension(
 
 function WishlistProfileBlock() {
   return (
-    <InlineStack spacing="base" blockAlignment="center">
+    <InlineStack spacing="base">
       <BlockStack spacing="tight">
         <Heading>My Wishlist</Heading>
         <Text appearance="subdued">

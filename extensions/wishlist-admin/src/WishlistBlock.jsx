@@ -10,7 +10,7 @@ import {
   Text,
   BlockStack,
   InlineStack,
-  Spinner,
+  ProgressIndicator,
   Banner,
   Image,
   Link,
@@ -138,8 +138,8 @@ function WishlistAdminBlock() {
   if (loading) {
     return (
       <AdminBlock title="Customer Wishlist">
-        <BlockStack gap="base">
-          <Spinner size="small" />
+        <BlockStack spacing="base">
+          <ProgressIndicator size="small-100" />
           <Text>Loading wishlist...</Text>
         </BlockStack>
       </AdminBlock>
@@ -168,15 +168,15 @@ function WishlistAdminBlock() {
 
   return (
     <AdminBlock title="Customer Wishlist">
-      <BlockStack gap="base">
+      <BlockStack spacing="base">
         <Text tone="subdued">
           {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in wishlist
         </Text>
 
-        <BlockStack gap="base">
+        <BlockStack spacing="base">
           {wishlist.map((product) => (
-            <BlockStack key={product.id} gap="base" inlineAlignment="start">
-              <InlineStack gap="base" blockAlignment="center">
+            <BlockStack key={product.id} spacing="base" inlineAlignment="start">
+              <InlineStack spacing="base" blockAlignment="center">
                 {product.featuredImage && (
                   <Image
                     source={product.featuredImage.url}
@@ -184,14 +184,14 @@ function WishlistAdminBlock() {
                   />
                 )}
 
-                <BlockStack gap="base">
+                <BlockStack spacing="base">
                   <Link
                     url={`shopify://admin/products/${product.id.split('/').pop()}`}
                   >
                     <Text fontWeight="bold">{product.title}</Text>
                   </Link>
 
-                  <InlineStack gap="base">
+                  <InlineStack spacing="base">
                     <Badge
                       tone={product.status === 'ACTIVE' ? 'success' : 'info'}
                     >

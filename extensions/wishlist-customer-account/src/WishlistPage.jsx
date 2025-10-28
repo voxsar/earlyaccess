@@ -15,7 +15,9 @@ import {
   Spinner,
   Banner,
   Grid,
+  GridItem,
   View,
+  Page,
 } from '@shopify/ui-extensions-react/customer-account';
 import { useEffect, useState } from 'react';
 
@@ -184,31 +186,28 @@ function WishlistPage() {
 
   if (loading) {
     return (
-      <BlockStack spacing="base" padding="base">
-        <Heading>My Wishlist</Heading>
+      <Page title="My Wishlist">
         <BlockStack spacing="base">
           <Spinner size="large" />
           <Text>Loading your wishlist...</Text>
         </BlockStack>
-      </BlockStack>
+      </Page>
     );
   }
 
   if (error) {
     return (
-      <BlockStack spacing="base" padding="base">
-        <Heading>My Wishlist</Heading>
+      <Page title="My Wishlist">
         <Banner status="critical">
           {error}
         </Banner>
-      </BlockStack>
+      </Page>
     );
   }
 
   if (wishlist.length === 0) {
     return (
-      <BlockStack spacing="base" padding="base">
-        <Heading>My Wishlist</Heading>
+      <Page title="My Wishlist">
         <BlockStack spacing="base" inlineAlignment="center">
           <Text size="large">Your wishlist is empty</Text>
           <Text appearance="subdued">
@@ -218,70 +217,73 @@ function WishlistPage() {
             Continue Shopping
           </Button>
         </BlockStack>
-      </BlockStack>
+      </Page>
     );
   }
 
   return (
-    <BlockStack spacing="base" padding="base">
-      <Heading>My Wishlist</Heading>
-      <Text appearance="subdued">
-        {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
-      </Text>
+    <Page title="My Wishlist">
+      <BlockStack spacing="base">
+        <Text appearance="subdued">
+          {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
+        </Text>
 
-      <Grid
-        columns={['fill', 'fill', 'fill']}
-        spacing="base"
-      >
-        {wishlist.map((product) => (
-          <View key={product.id} border="base" padding="base" cornerRadius="base">
-            <BlockStack spacing="base">
-              {product.featuredImage && (
-                <Image
-                  source={product.featuredImage.url}
-                  alt={product.featuredImage.altText || product.title}
-                  aspectRatio={1}
-                />
-              )}
-
-              <BlockStack spacing="tight">
-                <Text emphasis="bold">{product.title}</Text>
-
-                <Text emphasis="bold" size="large">
-                  {i18n.formatCurrency(
-                    product.priceRange.minVariantPrice.amount,
-                    {
-                      currency: product.priceRange.minVariantPrice.currencyCode,
-                    }
+        <Grid
+          columns={['fill', 'fill', 'fill']}
+          spacing="base"
+        >
+          {wishlist.map((product) => (
+            <GridItem key={product.id}>
+              <View border="base" padding="base" cornerRadius="base">
+                <BlockStack spacing="base">
+                  {product.featuredImage && (
+                    <Image
+                      source={product.featuredImage.url}
+                      alt={product.featuredImage.altText || product.title}
+                      aspectRatio={1}
+                    />
                   )}
-                </Text>
 
-                {!product.availableForSale && (
-                  <Text appearance="critical">Out of Stock</Text>
-                )}
-              </BlockStack>
+                  <BlockStack spacing="tight">
+                    <Text emphasis="bold">{product.title}</Text>
 
-              <InlineStack spacing="tight">
-                <Button
-                  to={product.onlineStoreUrl}
-                  kind="primary"
-                >
-                  View Product
-                </Button>
+                    <Text emphasis="bold" size="large">
+                      {i18n.formatCurrency(
+                        product.priceRange.minVariantPrice.amount,
+                        {
+                          currency: product.priceRange.minVariantPrice.currencyCode,
+                        }
+                      )}
+                    </Text>
 
-                <Button
-                  loading={
-                    removeLoading.loading && product.id === removeLoading.id
-                  }
-                  onPress={() => removeFromWishlist(product.id)}
-                >
-                  Remove
-                </Button>
-              </InlineStack>
-            </BlockStack>
-          </View>
-        ))}
-      </Grid>
-    </BlockStack>
+                    {!product.availableForSale && (
+                      <Text appearance="critical">Out of Stock</Text>
+                    )}
+                  </BlockStack>
+
+                  <InlineStack spacing="tight">
+                    <Button
+                      to={product.onlineStoreUrl}
+                      kind="primary"
+                    >
+                      View Product
+                    </Button>
+
+                    <Button
+                      loading={
+                        removeLoading.loading && product.id === removeLoading.id
+                      }
+                      onPress={() => removeFromWishlist(product.id)}
+                    >
+                      Remove
+                    </Button>
+                  </InlineStack>
+                </BlockStack>
+              </View>
+            </GridItem>
+          ))}
+        </Grid>
+      </BlockStack>
+    </Page>
   );
 }
