@@ -1,0 +1,162 @@
+/**
+ * Wishlist Button Styles
+ * Theme App Extension for Add to Wishlist functionality
+ */
+
+.wishlist-button-wrapper {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.wishlist-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid var(--button-color, #000);
+  background-color: transparent;
+  color: var(--button-color, #000);
+}
+
+.wishlist-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wishlist-button:active {
+  transform: translateY(0);
+}
+
+.wishlist-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Button style variants */
+.wishlist-button--primary {
+  background-color: var(--button-color, #000);
+  color: white;
+  border-color: var(--button-color, #000);
+}
+
+.wishlist-button--secondary {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--button-color, #000);
+  border-color: transparent;
+}
+
+.wishlist-button--outline {
+  background-color: transparent;
+  color: var(--button-color, #000);
+  border-color: var(--button-color, #000);
+}
+
+/* Icon styles */
+.wishlist-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--icon-color, #ff0000);
+  transition: transform 0.2s ease-in-out;
+}
+
+.wishlist-button:hover .wishlist-icon {
+  transform: scale(1.1);
+}
+
+.wishlist-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Added state */
+.wishlist-button--added .wishlist-icon-outline {
+  fill: var(--icon-color, #ff0000);
+  stroke: var(--icon-color, #ff0000);
+}
+
+.wishlist-button--added {
+  border-color: var(--icon-color, #ff0000);
+  color: var(--icon-color, #ff0000);
+}
+
+/* Loading state */
+.wishlist-button--loading {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.wishlist-button--loading .wishlist-icon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .wishlist-button {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .wishlist-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Toast notification styles */
+.wishlist-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: #333;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 10000;
+  animation: slideIn 0.3s ease-out;
+  max-width: 400px;
+}
+
+.wishlist-toast--success {
+  background-color: #10b981;
+}
+
+.wishlist-toast--error {
+  background-color: #ef4444;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .wishlist-toast {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+}

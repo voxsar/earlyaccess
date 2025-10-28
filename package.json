@@ -1,0 +1,22 @@
+{
+  "name": "earlyaccess-wishlist",
+  "version": "1.0.0",
+  "description": "Shopify app for wishlist and early access functionality",
+  "scripts": {
+    "dev": "shopify app dev",
+    "deploy": "shopify app deploy",
+    "generate": "shopify app generate",
+    "info": "shopify app info"
+  },
+  "keywords": [
+    "shopify",
+    "app",
+    "wishlist",
+    "early-access"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@shopify/cli": "^3.86.0"
+  }
+}

@@ -1,0 +1,38 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+name = "earlyaccess-wishlist"
+client_id = ""
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = ""
+
+[access_scopes]
+# Customer access scopes for reading and writing customer data including metafields
+scopes = "write_customers,read_customers,write_products,read_products,write_discounts,read_discounts,write_metaobjects,read_metaobjects"
+
+[auth]
+redirect_urls = [
+  "https://shopify.dev/apps/default-app-home/api/auth",
+  "https://shopify.dev/apps/default-app-home/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2025-10"
+
+# Customer metafield definitions for wishlist data
+[customer.metafields.app.wishlist]
+type = "list.product_reference"
+name = "Customer Wishlist"
+description = "List of products added to customer's wishlist"
+access.customer_account = "read_write"
+access.admin = "merchant_read_write"
+
+[customer.metafields.app.wishlist_timestamps]
+type = "json"
+name = "Wishlist Timestamps"
+description = "JSON object storing when each product was added to wishlist"
+access.customer_account = "read"
+access.admin = "merchant_read"

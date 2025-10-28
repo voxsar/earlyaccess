@@ -1,0 +1,48 @@
+api_version = "2025-10"
+
+[[extensions]]
+type = "theme"
+name = "Wishlist Button"
+handle = "wishlist-button"
+
+[extensions.settings]
+[[extensions.settings.fields]]
+type = "text"
+id = "button_text"
+label = "Button Text"
+default = "Add to Wishlist"
+
+[[extensions.settings.fields]]
+type = "text"
+id = "button_text_added"
+label = "Button Text (Added)"
+default = "Added to Wishlist"
+
+[[extensions.settings.fields]]
+type = "checkbox"
+id = "show_icon"
+label = "Show Heart Icon"
+default = true
+
+[[extensions.settings.fields]]
+type = "select"
+id = "button_style"
+label = "Button Style"
+options = [
+  { value = "primary", label = "Primary" },
+  { value = "secondary", label = "Secondary" },
+  { value = "outline", label = "Outline" }
+]
+default = "outline"
+
+[[extensions.settings.fields]]
+type = "color"
+id = "button_color"
+label = "Button Color"
+default = "#000000"
+
+[[extensions.settings.fields]]
+type = "color"
+id = "icon_color"
+label = "Icon Color"
+default = "#ff0000"

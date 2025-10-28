@@ -1,0 +1,23 @@
+{
+  "wishlist": {
+    "button": {
+      "add": "Add to Wishlist",
+      "added": "Added to Wishlist",
+      "remove": "Remove from Wishlist",
+      "login_required": "Login to add to wishlist"
+    },
+    "toast": {
+      "added": "Added to wishlist!",
+      "removed": "Removed from wishlist",
+      "error": "An error occurred. Please try again."
+    },
+    "settings": {
+      "button_text": "Button Text",
+      "button_text_added": "Button Text (Added)",
+      "show_icon": "Show Heart Icon",
+      "button_style": "Button Style",
+      "button_color": "Button Color",
+      "icon_color": "Icon Color"
+    }
+  }
+}
