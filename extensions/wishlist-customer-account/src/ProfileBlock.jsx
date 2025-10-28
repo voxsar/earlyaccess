@@ -3,10 +3,9 @@
  * Displays a link to the wishlist page on the customer profile
  */
 
-/** @jsx h */
-/** @jsxFrag Fragment */
+/** @jsxImportSource preact */
 import '@shopify/ui-extensions/customer-account';
-import { h, Fragment, render } from 'preact';
+import { render } from 'preact';
 
 export default async () => {
   render(<WishlistProfileBlock />, document.body);
