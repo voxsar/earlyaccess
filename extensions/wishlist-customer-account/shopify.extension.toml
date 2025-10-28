@@ -10,6 +10,16 @@ handle = "wishlist-fullpage"
 module = "./src/WishlistPage.jsx"
 target = "customer-account.page.render"
 
+[extensions.capabilities]
+api_access = true
+network_access = true
+
+[[extensions]]
+uid = "wishlist-profile-block-extension"
+type = "ui_extension"
+name = "Wishlist Profile Block"
+handle = "wishlist-profile-block"
+
 [[extensions.targeting]]
 module = "./src/ProfileBlock.jsx"
 target = "customer-account.profile.block.render"
