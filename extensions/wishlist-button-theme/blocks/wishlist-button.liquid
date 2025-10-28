@@ -1,0 +1,119 @@
+{% comment %}
+  Add to Wishlist Button - Theme App Block
+  Renders below the product Buy button
+  Requires customer to be logged in
+{% endcomment %}
+
+<div class="wishlist-button-wrapper" data-product-id="{{ product.id }}">
+  {% if customer %}
+    <button 
+      type="button" 
+      class="wishlist-button wishlist-button--{{ block.settings.button_style }}"
+      data-wishlist-button
+      data-product-id="{{ product.id }}"
+      data-product-handle="{{ product.handle }}"
+      aria-label="{{ block.settings.button_text }}"
+      style="
+        --button-color: {{ block.settings.button_color }};
+        --icon-color: {{ block.settings.icon_color }};
+      "
+    >
+      {% if block.settings.show_icon %}
+        <span class="wishlist-icon" data-wishlist-icon>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  fill="none"
+                  class="wishlist-icon-outline"
+            />
+          </svg>
+        </span>
+      {% endif %}
+      <span class="wishlist-button-text" data-wishlist-text>
+        {{ block.settings.button_text }}
+      </span>
+    </button>
+  {% else %}
+    <button 
+      type="button" 
+      class="wishlist-button wishlist-button--{{ block.settings.button_style }} wishlist-button--login-required"
+      onclick="window.location.href='/account/login?return_url={{ product.url }}'"
+      aria-label="Login to add to wishlist"
+      style="
+        --button-color: {{ block.settings.button_color }};
+        --icon-color: {{ block.settings.icon_color }};
+      "
+    >
+      {% if block.settings.show_icon %}
+        <span class="wishlist-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  fill="none"
+            />
+          </svg>
+        </span>
+      {% endif %}
+      <span class="wishlist-button-text">
+        Login to add to wishlist
+      </span>
+    </button>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Add to Wishlist",
+  "target": "section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Add to Wishlist"
+    },
+    {
+      "type": "text",
+      "id": "button_text_added",
+      "label": "Button Text (Added)",
+      "default": "Added to Wishlist"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show Heart Icon",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon Color",
+      "default": "#ff0000"
+    }
+  ],
+  "stylesheet": "wishlist-button.css",
+  "javascript": "wishlist-button.js"
+}
+{% endschema %}

@@ -1,0 +1,13 @@
+api_version = "2025-10"
+
+[[extensions]]
+type = "ui_extension"
+name = "Wishlist Management"
+handle = "wishlist-admin"
+
+[[extensions.targeting]]
+module = "./src/WishlistBlock.jsx"
+target = "admin.customers.details.block.render"
+
+[extensions.capabilities]
+api_access = true
