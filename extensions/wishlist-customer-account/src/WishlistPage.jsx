@@ -3,16 +3,29 @@
  * Displays customer's wishlist with product cards and management features
  */
 
-/** @jsxImportSource preact */
-import '@shopify/ui-extensions/customer-account';
-import { render } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import {
+  reactExtension,
+  useApi,
+  BlockStack,
+  InlineStack,
+  Text,
+  Button,
+  Heading,
+  Image,
+  Spinner,
+  Banner,
+  Grid,
+  View,
+} from '@shopify/ui-extensions-react/customer-account';
+import { useEffect, useState } from 'react';
 
-export default async () => {
-  render(<WishlistPage />, document.body);
-};
+export default reactExtension(
+  'customer-account.page.render',
+  () => <WishlistPage />
+);
 
 function WishlistPage() {
+  const { query, i18n } = useApi();
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -31,17 +44,18 @@ function WishlistPage() {
 
     try {
       // First, get the customer's wishlist from metafields
-      const customerData = await shopify.query(
-        `query {
+      const customerQuery = `
+        query {
           customer {
             id
             metafield(namespace: "app", key: "wishlist") {
               value
             }
           }
-        }`
-      );
+        }
+      `;
 
+      const customerData = await query(customerQuery);
       const wishlistValue = customerData?.data?.customer?.metafield?.value;
       
       if (!wishlistValue) {
@@ -59,9 +73,9 @@ function WishlistPage() {
         return;
       }
 
-      // Query Storefront API for product details
+      // Query for product details
       const productsQuery = `
-        query ($ids: [ID!]!) {
+        query GetProducts($ids: [ID!]!) {
           nodes(ids: $ids) {
             ... on Product {
               id
@@ -85,7 +99,7 @@ function WishlistPage() {
         }
       `;
 
-      const productsData = await shopify.query(productsQuery, {
+      const productsData = await query(productsQuery, {
         variables: { ids: productIds },
       });
 
@@ -103,17 +117,18 @@ function WishlistPage() {
 
     try {
       // Get current wishlist
-      const customerData = await shopify.query(
-        `query {
+      const customerQuery = `
+        query {
           customer {
             id
             metafield(namespace: "app", key: "wishlist") {
               value
             }
           }
-        }`
-      );
+        }
+      `;
 
+      const customerData = await query(customerQuery);
       const customerId = customerData?.data?.customer?.id;
       const currentWishlist = JSON.parse(
         customerData?.data?.customer?.metafield?.value || '[]'
@@ -124,9 +139,9 @@ function WishlistPage() {
         (id) => id !== productId
       );
 
-      // Update metafield via Customer Account API
-      await shopify.query(
-        `mutation UpdateWishlist($customerId: ID!, $metafields: [MetafieldsSetInput!]!) {
+      // Update metafield
+      const updateMutation = `
+        mutation UpdateWishlist($customerId: ID!, $metafields: [MetafieldsSetInput!]!) {
           metafieldsSet(metafields: $metafields) {
             metafields {
               id
@@ -139,148 +154,134 @@ function WishlistPage() {
               message
             }
           }
-        }`,
-        {
-          variables: {
-            customerId: customerId,
-            metafields: [
-              {
-                ownerId: customerId,
-                namespace: 'app',
-                key: 'wishlist',
-                value: JSON.stringify(updatedWishlist),
-                type: 'list.product_reference',
-              },
-            ],
-          },
         }
-      );
+      `;
+
+      await query(updateMutation, {
+        variables: {
+          customerId: customerId,
+          metafields: [
+            {
+              ownerId: customerId,
+              namespace: 'app',
+              key: 'wishlist',
+              value: JSON.stringify(updatedWishlist),
+              type: 'list.product_reference',
+            },
+          ],
+        },
+      });
 
       // Update local state
       setWishlist(wishlist.filter((item) => item.id !== productId));
-
-      // Dispatch event for other components
-      window.dispatchEvent(
-        new CustomEvent('wishlist:change', {
-          detail: { action: 'removed', productId },
-        })
-      );
     } catch (err) {
       console.error('Error removing from wishlist:', err);
-      alert('Failed to remove item. Please try again.');
+      setError('Failed to remove item. Please try again.');
     } finally {
       setRemoveLoading({ loading: false, id: null });
     }
   }
 
-  async function moveToCart(product) {
-    try {
-      // In a real implementation, this would add the product to cart
-      // For now, we'll navigate to the product page
-      window.location.href = product.onlineStoreUrl;
-    } catch (err) {
-      console.error('Error moving to cart:', err);
-    }
-  }
-
   if (loading) {
     return (
-      <s-page heading="My Wishlist">
-        <s-stack direction="block" gap="base" padding="base">
-          <s-spinner size="large" />
-          <s-text>Loading your wishlist...</s-text>
-        </s-stack>
-      </s-page>
+      <BlockStack spacing="base" padding="base">
+        <Heading>My Wishlist</Heading>
+        <BlockStack spacing="base">
+          <Spinner size="large" />
+          <Text>Loading your wishlist...</Text>
+        </BlockStack>
+      </BlockStack>
     );
   }
 
   if (error) {
     return (
-      <s-page heading="My Wishlist">
-        <s-banner status="critical">
-          <s-text>{error}</s-text>
-        </s-banner>
-      </s-page>
+      <BlockStack spacing="base" padding="base">
+        <Heading>My Wishlist</Heading>
+        <Banner status="critical">
+          {error}
+        </Banner>
+      </BlockStack>
     );
   }
 
   if (wishlist.length === 0) {
     return (
-      <s-page heading="My Wishlist">
-        <s-stack direction="block" gap="base" padding="base" alignItems="center">
-          <s-text size="large">Your wishlist is empty</s-text>
-          <s-text color="subdued">
+      <BlockStack spacing="base" padding="base">
+        <Heading>My Wishlist</Heading>
+        <BlockStack spacing="base" inlineAlignment="center">
+          <Text size="large">Your wishlist is empty</Text>
+          <Text appearance="subdued">
             Start adding products to your wishlist to keep track of items you love!
-          </s-text>
-          <s-button href="/" variant="primary">
+          </Text>
+          <Button to="/">
             Continue Shopping
-          </s-button>
-        </s-stack>
-      </s-page>
+          </Button>
+        </BlockStack>
+      </BlockStack>
     );
   }
 
   return (
-    <s-page heading="My Wishlist">
-      <s-stack direction="block" gap="base" padding="base">
-        <s-text color="subdued">
-          {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
-        </s-text>
+    <BlockStack spacing="base" padding="base">
+      <Heading>My Wishlist</Heading>
+      <Text appearance="subdued">
+        {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist
+      </Text>
 
-        <s-grid columns="3" gap="base">
-          {wishlist.map((product) => (
-            <s-section key={product.id}>
-              <s-stack direction="block" gap="base">
-                {product.featuredImage && (
-                  <s-image
-                    src={product.featuredImage.url}
-                    alt={product.featuredImage.altText || product.title}
-                    aspectRatio="1/1"
-                  />
-                )}
+      <Grid
+        columns={['fill', 'fill', 'fill']}
+        spacing="base"
+      >
+        {wishlist.map((product) => (
+          <View key={product.id} border="base" padding="base" cornerRadius="base">
+            <BlockStack spacing="base">
+              {product.featuredImage && (
+                <Image
+                  source={product.featuredImage.url}
+                  alt={product.featuredImage.altText || product.title}
+                  aspectRatio={1}
+                />
+              )}
 
-                <s-stack direction="block" gap="small-500">
-                  <s-text type="strong">{product.title}</s-text>
+              <BlockStack spacing="tight">
+                <Text emphasis="bold">{product.title}</Text>
 
-                  <s-text type="strong" size="large">
-                    {shopify.i18n.formatCurrency(
-                      product.priceRange.minVariantPrice.amount,
-                      {
-                        currency: product.priceRange.minVariantPrice.currencyCode,
-                      }
-                    )}
-                  </s-text>
-
-                  {!product.availableForSale && (
-                    <s-badge status="critical">Out of Stock</s-badge>
-                  )}
-                </s-stack>
-
-                <s-stack direction="inline" gap="small-500">
-                  <s-button
-                    slot="primary-action"
-                    href={product.onlineStoreUrl}
-                    variant="primary"
-                  >
-                    View Product
-                  </s-button>
-
-                  <s-button
-                    slot="secondary-actions"
-                    loading={
-                      removeLoading.loading && product.id === removeLoading.id
+                <Text emphasis="bold" size="large">
+                  {i18n.formatCurrency(
+                    product.priceRange.minVariantPrice.amount,
+                    {
+                      currency: product.priceRange.minVariantPrice.currencyCode,
                     }
-                    onClick={() => removeFromWishlist(product.id)}
-                    variant="tertiary"
-                  >
-                    Remove
-                  </s-button>
-                </s-stack>
-              </s-stack>
-            </s-section>
-          ))}
-        </s-grid>
-      </s-stack>
-    </s-page>
+                  )}
+                </Text>
+
+                {!product.availableForSale && (
+                  <Text appearance="critical">Out of Stock</Text>
+                )}
+              </BlockStack>
+
+              <InlineStack spacing="tight">
+                <Button
+                  to={product.onlineStoreUrl}
+                  kind="primary"
+                >
+                  View Product
+                </Button>
+
+                <Button
+                  loading={
+                    removeLoading.loading && product.id === removeLoading.id
+                  }
+                  onPress={() => removeFromWishlist(product.id)}
+                >
+                  Remove
+                </Button>
+              </InlineStack>
+            </BlockStack>
+          </View>
+        ))}
+      </Grid>
+    </BlockStack>
   );
 }

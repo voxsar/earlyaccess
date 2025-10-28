@@ -3,26 +3,40 @@
  * Displays customer's wishlist in the admin customer details page
  */
 
-/** @jsxImportSource preact */
-import '@shopify/ui-extensions/admin';
-import { render } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
+import {
+  reactExtension,
+  useApi,
+  AdminBlock,
+  Text,
+  BlockStack,
+  InlineStack,
+  Spinner,
+  Banner,
+  Image,
+  Link,
+  Badge,
+} from '@shopify/ui-extensions-react/admin';
+import { useEffect, useState } from 'react';
 
-export default async (root) => {
-  // Get the customer ID from the admin context
-  const customerId = root.data.selected[0]?.id;
-  
-  render(<WishlistAdminBlock customerId={customerId} />, document.body);
-};
+export default reactExtension(
+  'admin.customer-details.block.render',
+  () => <WishlistAdminBlock />
+);
 
-function WishlistAdminBlock({ customerId }) {
+function WishlistAdminBlock() {
+  const { data, query } = useApi();
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Get the customer ID from the admin context
+  const customerId = data?.selected?.[0]?.id;
+
   useEffect(() => {
     if (customerId) {
       fetchCustomerWishlist();
+    } else {
+      setLoading(false);
     }
   }, [customerId]);
 
@@ -32,7 +46,7 @@ function WishlistAdminBlock({ customerId }) {
 
     try {
       // Query customer metafield for wishlist
-      const query = `
+      const customerQuery = `
         query GetCustomerWishlist($customerId: ID!) {
           customer(id: $customerId) {
             id
@@ -46,16 +60,11 @@ function WishlistAdminBlock({ customerId }) {
         }
       `;
 
-      const response = await fetch('shopify:admin/api/graphql.json', {
-        method: 'POST',
-        body: JSON.stringify({
-          query: query,
-          variables: { customerId: customerId },
-        }),
+      const customerData = await query(customerQuery, {
+        variables: { customerId: customerId },
       });
 
-      const data = await response.json();
-      const customer = data?.data?.customer;
+      const customer = customerData?.data?.customer;
       
       if (!customer) {
         setError('Customer not found');
@@ -105,15 +114,10 @@ function WishlistAdminBlock({ customerId }) {
         }
       `;
 
-      const productsResponse = await fetch('shopify:admin/api/graphql.json', {
-        method: 'POST',
-        body: JSON.stringify({
-          query: productsQuery,
-          variables: { ids: productIds },
-        }),
+      const productsData = await query(productsQuery, {
+        variables: { ids: productIds },
       });
 
-      const productsData = await productsResponse.json();
       setWishlist(productsData?.data?.nodes || []);
     } catch (err) {
       console.error('Error fetching wishlist:', err);
@@ -125,98 +129,92 @@ function WishlistAdminBlock({ customerId }) {
 
   if (!customerId) {
     return (
-      <admin-block title="Customer Wishlist">
-        <admin-text>No customer selected</admin-text>
-      </admin-block>
+      <AdminBlock title="Customer Wishlist">
+        <Text>No customer selected</Text>
+      </AdminBlock>
     );
   }
 
   if (loading) {
     return (
-      <admin-block title="Customer Wishlist">
-        <admin-stack direction="vertical" gap="base">
-          <admin-spinner size="small" />
-          <admin-text>Loading wishlist...</admin-text>
-        </admin-stack>
-      </admin-block>
+      <AdminBlock title="Customer Wishlist">
+        <BlockStack gap="base">
+          <Spinner size="small" />
+          <Text>Loading wishlist...</Text>
+        </BlockStack>
+      </AdminBlock>
     );
   }
 
   if (error) {
     return (
-      <admin-block title="Customer Wishlist">
-        <admin-banner status="critical">
-          <admin-text>{error}</admin-text>
-        </admin-banner>
-      </admin-block>
+      <AdminBlock title="Customer Wishlist">
+        <Banner status="critical">
+          {error}
+        </Banner>
+      </AdminBlock>
     );
   }
 
   if (wishlist.length === 0) {
     return (
-      <admin-block title="Customer Wishlist">
-        <admin-stack direction="vertical" gap="base">
-          <admin-text appearance="subdued">
-            This customer hasn't added any products to their wishlist yet.
-          </admin-text>
-        </admin-stack>
-      </admin-block>
+      <AdminBlock title="Customer Wishlist">
+        <Text tone="subdued">
+          This customer hasn't added any products to their wishlist yet.
+        </Text>
+      </AdminBlock>
     );
   }
 
   return (
-    <admin-block title="Customer Wishlist">
-      <admin-stack direction="vertical" gap="base">
-        <admin-text appearance="subdued">
+    <AdminBlock title="Customer Wishlist">
+      <BlockStack gap="base">
+        <Text tone="subdued">
           {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in wishlist
-        </admin-text>
+        </Text>
 
-        <admin-stack direction="vertical" gap="small">
+        <BlockStack gap="base">
           {wishlist.map((product) => (
-            <admin-card key={product.id} padding="base">
-              <admin-stack direction="horizontal" gap="base" alignItems="center">
+            <BlockStack key={product.id} gap="base" inlineAlignment="start">
+              <InlineStack gap="base" blockAlignment="center">
                 {product.featuredImage && (
-                  <admin-image
-                    src={product.featuredImage.url}
+                  <Image
+                    source={product.featuredImage.url}
                     alt={product.featuredImage.altText || product.title}
-                    width="60px"
-                    height="60px"
                   />
                 )}
 
-                <admin-stack direction="vertical" gap="small-200" flex="1">
-                  <admin-link
-                    href={`/admin/products/${product.id.split('/').pop()}`}
+                <BlockStack gap="base">
+                  <Link
+                    url={`shopify://admin/products/${product.id.split('/').pop()}`}
                   >
-                    <admin-text fontWeight="bold">{product.title}</admin-text>
-                  </admin-link>
+                    <Text fontWeight="bold">{product.title}</Text>
+                  </Link>
 
-                  <admin-stack direction="horizontal" gap="small-500">
-                    <admin-badge
-                      status={
-                        product.status === 'ACTIVE' ? 'success' : 'info'
-                      }
+                  <InlineStack gap="base">
+                    <Badge
+                      tone={product.status === 'ACTIVE' ? 'success' : 'info'}
                     >
                       {product.status}
-                    </admin-badge>
+                    </Badge>
 
                     {product.totalInventory !== null && (
-                      <admin-text appearance="subdued">
+                      <Text tone="subdued">
                         {product.totalInventory} in stock
-                      </admin-text>
+                      </Text>
                     )}
-                  </admin-stack>
-                </admin-stack>
+                  </InlineStack>
 
-                <admin-text fontWeight="bold">
-                  {product.priceRangeV2?.minVariantPrice?.amount}{' '}
-                  {product.priceRangeV2?.minVariantPrice?.currencyCode}
-                </admin-text>
-              </admin-stack>
-            </admin-card>
+                  <Text fontWeight="bold">
+                    {product.priceRangeV2?.minVariantPrice?.amount}{' '}
+                    {product.priceRangeV2?.minVariantPrice?.currencyCode}
+                  </Text>
+                </BlockStack>
+              </InlineStack>
+            </BlockStack>
           ))}
-        </admin-stack>
-      </admin-stack>
-    </admin-block>
+        </BlockStack>
+      </BlockStack>
+    </AdminBlock>
   );
 }
