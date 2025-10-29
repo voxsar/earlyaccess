@@ -140,6 +140,8 @@ router.get('/shopify', (req, res) => {
 		`grant_options[]=offline`; // Request offline access token
 
 	console.log(`🔐 Initiating OAuth flow for shop: ${shop}`);
+	// Safe redirect: shop parameter has been validated by isValidShopHostname()
+	// which ensures it matches the pattern: [a-zA-Z0-9][-a-zA-Z0-9]*.myshopify.com
 	res.redirect(authUrl);
 });
 
@@ -220,6 +222,9 @@ router.get('/callback', async (req, res) => {
 
 	try {
 		// Step 4: Exchange authorization code for access token
+		// Safe: shop parameter has been validated by isValidShopHostname()
+		// which ensures it matches: [a-zA-Z0-9][-a-zA-Z0-9]*.myshopify.com
+		// HMAC verification ensures this request came from Shopify
 		const tokenUrl = `https://${shop}/admin/oauth/access_token`;
 		console.log(`🔄 Exchanging code for access token at ${tokenUrl}`);
 		

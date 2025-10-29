@@ -151,7 +151,7 @@ if (process.env.SHOPIFY_API_KEY) {
 	console.log(authUrl);
 	console.log('\nURL Components:');
 	console.log(`  Shop: ${shop}`);
-	console.log(`  Client ID: ${apiKey}`);
+	console.log(`  Client ID: ${apiKey.substring(0, 8)}...`); // Only log first 8 chars
 	console.log(`  Scopes: ${scopes}`);
 	console.log(`  Redirect URI: ${redirectUri}`);
 	console.log(`  State/Nonce: ${nonce.substring(0, 16)}...`);

@@ -34,10 +34,13 @@ const corsOptions = {
 };
 
 // Cookie parser (must be before session middleware)
+// Used for signed cookies in OAuth flow for additional nonce validation
 const cookieSecret = process.env.SESSION_SECRET || 'your-secret-key';
 app.use(cookieParser(cookieSecret));
 
 // Session configuration
+// CSRF Protection: OAuth endpoints use nonce validation (state parameter)
+// which is stored in both session and signed cookies for double verification
 app.use(session({
 	secret: cookieSecret,
 	resave: false,
