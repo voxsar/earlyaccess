@@ -45,8 +45,20 @@ SHOPIFY_REDIRECT_URI=https://your-backend-url.com/api/auth/callback
 SHOPIFY_SCOPES=read_customers,write_customers,read_products,write_customer_metafields,read_customer_metafields
 APPLICATION_URL=https://your-backend-url.com
 
+# Add session secret if not already present
+SESSION_SECRET=your_secure_random_secret_here
+
 # Keep your existing variables:
 # SHOPIFY_API_KEY, SHOPIFY_API_SECRET, etc.
+```
+
+Generate a secure random secret:
+```bash
+# On Linux/Mac:
+openssl rand -base64 32
+
+# Or use Node.js:
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 ### Step 3: Update Dependencies
