@@ -2,6 +2,40 @@
 
 A comprehensive Shopify app that provides wishlist functionality for customers and early access pages with exclusive discounts.
 
+## 🏗️ Architecture
+
+This app uses a **split architecture** with separate backend and frontend:
+
+- **Backend API**: Node.js/Express server at `earlyaccessapi.dev.artslabcreatives.com`
+- **Frontend**: Shopify UI extensions (theme, customer account, admin)
+
+```
+Frontend (UI Extensions) → Backend API → Shopify GraphQL API → Customer Metafields
+```
+
+For detailed architecture documentation, see [CODEBASE_SPLIT.md](./CODEBASE_SPLIT.md).
+
+## 📁 Project Structure
+
+```
+earlyaccess/
+├── backend/                    # Backend API server
+│   ├── src/
+│   │   ├── controllers/       # Request handlers
+│   │   ├── routes/            # API routes
+│   │   ├── services/          # Business logic
+│   │   └── server.js          # Main server
+│   └── README.md
+│
+├── frontend/                   # Frontend UI extensions
+│   ├── wishlist-button-theme/ # Storefront extension
+│   ├── wishlist-customer-account/ # Customer account extension
+│   ├── wishlist-admin/        # Admin extension
+│   └── README.md
+│
+└── shopify.app.toml           # Shopify app config
+```
+
 ## Features
 
 ### Wishlist Functionality
@@ -94,6 +128,65 @@ Block extension for viewing customer wishlists in admin.
    ```bash
    git clone <repository-url>
    cd earlyaccess
+   ```
+
+2. **Backend Setup**
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   ```
+
+   Edit `.env` and configure:
+   ```
+   PORT=3000
+   SHOPIFY_API_KEY=your_api_key
+   SHOPIFY_API_SECRET=your_api_secret
+   SHOPIFY_SHOP_DOMAIN=your-store.myshopify.com
+   SHOPIFY_ACCESS_TOKEN=your_access_token
+   ALLOWED_ORIGINS=https://your-store.myshopify.com
+   ```
+
+   Start the backend:
+   ```bash
+   npm run dev
+   ```
+
+3. **Frontend Setup**
+   ```bash
+   cd ../frontend/wishlist-customer-account
+   npm install
+   cd ../wishlist-admin
+   npm install
+   cd ../..
+   ```
+
+4. **Configure API URL**
+   
+   Update the backend API URL in:
+   - `frontend/wishlist-button-theme/assets/wishlist-button.js`
+   - `frontend/wishlist-customer-account/src/api/backendApi.js`
+   - `frontend/wishlist-admin/src/api/backendApi.js`
+
+   For local development:
+   ```javascript
+   const BACKEND_API_URL = 'http://localhost:3000';
+   ```
+
+   For production:
+   ```javascript
+   const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
+   ```
+
+5. **Start development server**
+   ```bash
+   npm run dev
+   ```
+
+6. **Follow CLI prompts**
+   - Select your app
+   - Select your development store
+   - Press `p` to open developer console
    ```
 
 2. **Install Shopify CLI**

@@ -7,8 +7,7 @@
   'use strict';
 
   // Configuration
-  const WISHLIST_METAFIELD_NAMESPACE = 'app';
-  const WISHLIST_METAFIELD_KEY = 'wishlist';
+  const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
   const STORAGE_KEY = 'wishlist_products';
 
   class WishlistButton {
@@ -83,10 +82,9 @@
       this.updateButtonState(true);
       this.showToast('Added to wishlist!', 'success');
 
-      // Make API call to update customer metafield
-      // In production, this should call your app's backend API endpoint
+      // Make API call to backend
       try {
-        const response = await fetch('/apps/wishlist/api/add', {
+        const response = await fetch(`${BACKEND_API_URL}/api/wishlist/add`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -120,9 +118,9 @@
       this.updateButtonState(false);
       this.showToast('Removed from wishlist', 'success');
 
-      // Make API call to update customer metafield
+      // Make API call to backend
       try {
-        const response = await fetch('/apps/wishlist/api/remove', {
+        const response = await fetch(`${BACKEND_API_URL}/api/wishlist/remove`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
