@@ -9,85 +9,93 @@ const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
  * Add product to wishlist
  */
 export async function addToWishlist(customerId, productId, productHandle) {
-  const response = await fetch(`${BACKEND_API_URL}/api/wishlist/add`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Customer-Id': customerId,
-    },
-    body: JSON.stringify({
-      productId,
-      productHandle,
-    }),
-  });
+	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/add`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Customer-Id': customerId,
+		},
+		body: JSON.stringify({
+			productId,
+			productHandle,
+		}),
+	});
 
-  if (!response.ok) {
-    throw new Error('Failed to add to wishlist');
-  }
+	if (!response.ok) {
+		throw new Error('Failed to add to wishlist');
+	}
 
-  return response.json();
+	return response.json();
 }
 
 /**
  * Remove product from wishlist
  */
 export async function removeFromWishlist(customerId, productId) {
-  const response = await fetch(`${BACKEND_API_URL}/api/wishlist/remove`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Customer-Id': customerId,
-    },
-    body: JSON.stringify({
-      productId,
-    }),
-  });
+	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/remove`, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Customer-Id': customerId,
+		},
+		body: JSON.stringify({
+			productId,
+		}),
+	});
 
-  if (!response.ok) {
-    throw new Error('Failed to remove from wishlist');
-  }
+	if (!response.ok) {
+		throw new Error('Failed to remove from wishlist');
+	}
 
-  return response.json();
+	return response.json();
 }
 
 /**
  * Get current customer's wishlist
  */
 export async function getWishlist(customerId) {
-  const response = await fetch(`${BACKEND_API_URL}/api/wishlist/current`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Customer-Id': customerId,
-    },
-  });
+	console.log('Fetching wishlist for customer ID:', customerId);
 
-  if (!response.ok) {
-    throw new Error('Failed to get wishlist');
-  }
+	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/current`, {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-Customer-Id': customerId,
+		},
+	});
 
-  const data = await response.json();
-  return data.data.items;
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => null);
+		console.error('Wishlist fetch failed:', {
+			status: response.status,
+			statusText: response.statusText,
+			error: errorData
+		});
+		throw new Error(`Failed to get wishlist: ${response.status} ${response.statusText}`);
+	}
+
+	const data = await response.json();
+	return data.data.items;
 }
 
 /**
  * Get specific customer's wishlist (admin use)
  */
 export async function getCustomerWishlist(customerId) {
-  const response = await fetch(
-    `${BACKEND_API_URL}/api/wishlist/${customerId}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  );
+	const response = await fetch(
+		`${BACKEND_API_URL}/api/wishlist/${customerId}`,
+		{
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		}
+	);
 
-  if (!response.ok) {
-    throw new Error('Failed to get customer wishlist');
-  }
+	if (!response.ok) {
+		throw new Error('Failed to get customer wishlist');
+	}
 
-  const data = await response.json();
-  return data.data.items;
+	const data = await response.json();
+	return data.data.items;
 }

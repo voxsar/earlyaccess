@@ -13,7 +13,17 @@ export default extension('customer-account.page.render', (root, api) => {
 	async function fetchCustomerId() {
 		try {
 			const customerData = await query('query{customer{id}}');
-			customerId = customerData?.data?.customer?.id;
+			const rawCustomerId = customerData?.data?.customer?.id;
+
+			// Extract numeric ID from Shopify GID format (gid://shopify/Customer/123456789)
+			if (rawCustomerId && rawCustomerId.includes('gid://shopify/Customer/')) {
+				customerId = rawCustomerId.split('/').pop();
+			} else {
+				customerId = rawCustomerId;
+			}
+
+			console.log('Customer ID:', customerId); // Debug log
+
 			if (customerId) {
 				await fetchWishlist();
 			}
