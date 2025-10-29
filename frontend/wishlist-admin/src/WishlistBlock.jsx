@@ -1,6 +1,7 @@
 import {
   reactExtension,
   useApi,
+  useSessionToken,
   AdminBlock,
   Text,
   BlockStack,
@@ -18,28 +19,29 @@ export default reactExtension('admin.customer-details.block.render', () => <Wish
 
 function WishlistAdminBlock() {
   const { data } = useApi();
+  const sessionToken = useSessionToken();
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const customerId = data?.selected?.[0]?.id;
 
   useEffect(() => {
-    if (customerId) {
+    if (customerId && sessionToken) {
       fetchCustomerWishlist();
     } else {
       setLoading(false);
     }
-  }, [customerId]);
+  }, [customerId, sessionToken]);
 
   async function fetchCustomerWishlist() {
     setLoading(true);
     setError(null);
     try {
-      const items = await getCustomerWishlist(customerId);
+      const items = await getCustomerWishlist(customerId, sessionToken);
       setWishlist(items);
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      setError('Failed to load wishlist');
+      setError(`Failed to load wishlist: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -49,6 +51,11 @@ function WishlistAdminBlock() {
     <AdminBlock title="Customer Wishlist">
       {!customerId ? (
         <Text>No customer selected</Text>
+      ) : !sessionToken ? (
+        <BlockStack spacing="base">
+          <ProgressIndicator size="small-100" />
+          <Text>Authenticating...</Text>
+        </BlockStack>
       ) : loading ? (
         <BlockStack spacing="base">
           <ProgressIndicator size="small-100" />
