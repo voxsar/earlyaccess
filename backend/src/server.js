@@ -9,6 +9,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 const wishlistRoutes = require('./routes/wishlist');
 const healthRoutes = require('./routes/health');
@@ -32,13 +33,18 @@ const corsOptions = {
 	optionsSuccessStatus: 200,
 };
 
+// Cookie parser (must be before session middleware)
+const cookieSecret = process.env.SESSION_SECRET || 'your-secret-key';
+app.use(cookieParser(cookieSecret));
+
 // Session configuration
 app.use(session({
-	secret: process.env.SESSION_SECRET || 'your-secret-key',
+	secret: cookieSecret,
 	resave: false,
 	saveUninitialized: false,
 	cookie: {
 		secure: process.env.NODE_ENV === 'production',
+		httpOnly: true,
 		maxAge: 24 * 60 * 60 * 1000 // 24 hours
 	}
 }));
