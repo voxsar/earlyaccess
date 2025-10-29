@@ -191,21 +191,6 @@ Block extension for viewing customer wishlists in admin.
    - Select your development store
    - Press `p` to open developer console
 
-4. **Configure the app**
-   - Update `shopify.app.toml` with your app credentials
-   - Set `client_id` from Partner Dashboard
-   - Set `dev_store_url` to your development store
-
-5. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-6. **Follow CLI prompts**
-   - Select your app
-   - Select your development store
-   - Press `p` to open developer console
-
 ## Development
 
 ### Running the Application
