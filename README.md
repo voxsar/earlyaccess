@@ -147,21 +147,22 @@ Block extension for viewing customer wishlists in admin.
    ALLOWED_ORIGINS=https://your-store.myshopify.com
    ```
 
-   Start the backend:
+3. **Install Root Dependencies**
    ```bash
-   npm run dev
+   cd ..
+   npm install
    ```
 
-3. **Frontend Setup**
+4. **Frontend Setup**
    ```bash
-   cd ../frontend/wishlist-customer-account
+   cd frontend/wishlist-customer-account
    npm install
    cd ../wishlist-admin
    npm install
    cd ../..
    ```
 
-4. **Configure API URL**
+5. **Configure API URL**
    
    Update the backend API URL in:
    - `frontend/wishlist-button-theme/assets/wishlist-button.js`
@@ -178,29 +179,17 @@ Block extension for viewing customer wishlists in admin.
    const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
    ```
 
-5. **Start development server**
+6. **Start development servers**
    ```bash
-   npm run dev
+   npm run dev:full
    ```
+   
+   This will start both the backend API server and Shopify app dev server.
 
-6. **Follow CLI prompts**
+7. **Follow CLI prompts**
    - Select your app
    - Select your development store
    - Press `p` to open developer console
-   ```
-
-2. **Install Shopify CLI**
-   ```bash
-   npm install -g @shopify/cli
-   ```
-
-3. **Install dependencies**
-   ```bash
-   npm install
-   cd extensions/wishlist-customer-account && npm install
-   cd ../wishlist-admin && npm install
-   cd ../..
-   ```
 
 4. **Configure the app**
    - Update `shopify.app.toml` with your app credentials
@@ -218,6 +207,27 @@ Block extension for viewing customer wishlists in admin.
    - Press `p` to open developer console
 
 ## Development
+
+### Running the Application
+
+#### Option 1: Run Backend and Frontend Together (Recommended)
+```bash
+npm run dev:full
+```
+This command starts both the backend API server and the Shopify app dev server concurrently.
+
+#### Option 2: Run Backend and Frontend Separately
+
+**Terminal 1 - Backend API:**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 - Shopify Extensions:**
+```bash
+npm run dev
+```
 
 ### Testing Theme Extension
 
