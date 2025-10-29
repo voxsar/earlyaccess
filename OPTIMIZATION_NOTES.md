@@ -6,12 +6,16 @@ Three UI extensions exceeded the 64 KB script size limit:
 - `wishlist-fullpage`: 74 KB (10 KB over limit)
 - `wishlist-profile-block`: 73 KB (9 KB over limit)
 
+## Status: ✅ OPTIMIZATIONS IMPLEMENTED
+
+The optimizations documented below have been applied to reduce bundle sizes.
+
 ## Root Cause
 The extensions were bundling React and other dependencies that should be provided by Shopify's runtime environment.
 
 ## Optimizations Applied
 
-### 1. Dependency Management
+### 1. Dependency Management ✅ IMPLEMENTED
 **Changed:** Removed explicit `react`, `react-reconciler`, and `@shopify/ui-extensions` dependencies from extension `package.json` files.
 
 **Reason:** The `@shopify/ui-extensions-react` package already includes these as peer dependencies, and Shopify's bundler automatically externalizes them to avoid bundling.
@@ -22,81 +26,36 @@ The extensions were bundling React and other dependencies that should be provide
 
 **Impact:** Significant reduction in bundle size as React (~40-50 KB) and react-reconciler are no longer bundled.
 
-### 2. Code Optimization
+### 2. Code Optimization ✅ IMPLEMENTED
 
-#### a. Removed Comments and Documentation
-- Removed JSDoc comments from all component files
-- Removed inline code comments
+#### a. GraphQL Query Minification
+- Removed whitespace from GraphQL query strings
+- Removed query names (not needed)
+- Removed unused fields from queries
 
 **Files Modified:**
 - `extensions/wishlist-admin/src/WishlistBlock.jsx`
 - `extensions/wishlist-customer-account/src/WishlistPage.jsx`
-- `extensions/wishlist-customer-account/src/ProfileBlock.jsx`
 
-**Impact:** ~2-3 KB reduction per file
-
-#### b. Removed Wrapper Components
-- Simplified `ProfileBlock.jsx` to inline JSX directly in reactExtension
-- Removed unnecessary intermediate component functions
-
-**Impact:** Reduced component overhead and bundle size
-
-#### c. Minified GraphQL Queries
-- Removed whitespace and newlines from GraphQL query strings
-- Kept queries readable in code but reduced string size
-
-**Example:**
+**Examples:**
 ```javascript
 // Before
-const query = `
-  query {
-    customer {
-      id
-      metafield(namespace: "app", key: "wishlist") {
-        value
-      }
-    }
-  }
-`;
+query('query GetCustomerWishlist($customerId:ID!){customer(id:$customerId){id email firstName lastName metafield(namespace:"app",key:"wishlist"){value}}}', { variables: { customerId: customerId } })
 
-// After
-const query = 'query{customer{id metafield(namespace:"app",key:"wishlist"){value}}}';
+// After - removed unused fields and query name
+query('query($customerId:ID!){customer(id:$customerId){metafield(namespace:"app",key:"wishlist"){value}}}', { variables: { customerId } })
 ```
 
-**Impact:** ~1-2 KB reduction per file
+**Impact:** ~5-10% reduction in query string size
 
-#### d. Removed Debug Statements
-- Removed `console.error()` calls from error handling
+#### b. Error Handling Optimization  
+- Removed unused error variables (e.g., `catch (err)` → `catch`)
 
 **Impact:** Small reduction in bundle size
 
-#### e. Consolidated Conditional Rendering
-- Replaced multiple early returns with nested ternary operators
-- Single wrapper component (Page/AdminBlock) instead of duplicating it in each conditional
-
-**Example:**
-```javascript
-// Before
-if (loading) return <Page><Loading /></Page>;
-if (error) return <Page><Error /></Page>;
-if (empty) return <Page><Empty /></Page>;
-return <Page><Content /></Page>;
-
-// After
-return <Page>{loading ? <Loading /> : error ? <Error /> : empty ? <Empty /> : <Content />}</Page>;
-```
-
-**Impact:** Eliminated duplicate JSX structure, ~3-5 KB reduction per file
-
-#### f. Removed Unused Imports
-- Removed `Heading` component from `WishlistPage.jsx` (not used after optimization)
-
-**Impact:** Small reduction in bundle size
-
-### 3. Component Structure Simplification
-- Reduced nesting levels in JSX
-- Consolidated prop spreading
-- Simplified state management initialization
+#### c. Code Simplification
+- Used shorthand property syntax where possible
+- Simplified conditionals with optional chaining
 
 ## Testing
 
@@ -139,6 +98,16 @@ With these optimizations:
 - **wishlist-profile-block**: Should be ~10-15 KB (down from 73 KB)
 
 All well under the 64 KB limit.
+
+## Backend API Option
+
+For the question "is there an api that it connects to in the backend to offload functions?":
+
+**Current Implementation:** Extensions make direct GraphQL calls to Shopify APIs. No custom backend API exists.
+
+**Recommendation:** A backend API is NOT required to solve the 64 KB bundle size issue. The code optimizations above should be sufficient. 
+
+**Future Consideration:** If you want to add advanced features (analytics, caching, notifications), a backend API could be beneficial. See `BACKEND_API_RECOMMENDATION.md` for detailed analysis and implementation options.
 
 ## Maintenance Notes
 
