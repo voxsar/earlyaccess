@@ -4,9 +4,11 @@ Backend API server for the Early Access + Wishlist Shopify App. This server hand
 
 ## Features
 
+- **OAuth Authentication**: Full Authorization Code Grant implementation with HMAC verification
 - **Wishlist Management**: Add, remove, and retrieve wishlist items
 - **Shopify Integration**: Seamless integration with Shopify Admin API
 - **Customer Metafields**: Persistent storage using Shopify customer metafields
+- **Session Management**: Secure persistent storage of access tokens
 - **RESTful API**: Clean REST endpoints for frontend integration
 - **Error Handling**: Comprehensive error handling and logging
 - **CORS Support**: Configurable CORS for cross-origin requests
@@ -22,6 +24,10 @@ Shopify Admin GraphQL API
          ↓
 Customer Metafields
 ```
+
+## Quick Start
+
+See [QUICKSTART_OAUTH.md](./QUICKSTART_OAUTH.md) for a quick setup guide.
 
 ## Installation
 
@@ -55,6 +61,12 @@ Customer Metafields
    SHOPIFY_ACCESS_TOKEN=your_access_token
    SHOPIFY_API_VERSION=2025-10
    
+   # OAuth Configuration
+   SHOPIFY_REDIRECT_URI=https://your-backend-url.com/api/auth/callback
+   SHOPIFY_SCOPES=read_customers,write_customers,read_products,write_customer_metafields,read_customer_metafields
+   APPLICATION_URL=https://your-backend-url.com
+   
+   SESSION_SECRET=your_secure_random_secret
    ALLOWED_ORIGINS=https://your-store.myshopify.com
    ```
 
@@ -70,7 +82,59 @@ Customer Metafields
    npm start
    ```
 
+## OAuth Authentication
+
+This API implements Shopify's Authorization Code Grant OAuth flow for secure authentication. See [OAUTH_IMPLEMENTATION.md](./OAUTH_IMPLEMENTATION.md) for detailed documentation.
+
+### Quick OAuth Setup
+
+1. Install the app by visiting:
+   ```
+   https://your-backend-url.com/api/auth/shopify?shop=your-store.myshopify.com
+   ```
+
+2. Approve the permissions on Shopify's grant screen
+
+3. The access token is automatically stored and used for subsequent API calls
+
+### Testing OAuth
+
+Run the test suite:
+```bash
+node test-oauth-flow.js
+```
+
 ## API Endpoints
+
+### Authentication Endpoints
+
+#### GET /api/auth/shopify
+Initiate OAuth authorization flow.
+
+**Parameters:**
+- `shop` (required): Shop domain (e.g., "example.myshopify.com")
+- `hmac` (optional): HMAC signature for verification
+- `timestamp` (optional): Request timestamp
+
+#### GET /api/auth/callback
+OAuth callback endpoint (automatically called by Shopify).
+
+#### GET /api/auth/verify
+Check authentication status for a shop.
+
+**Parameters:**
+- `shop`: Shop domain
+
+**Response:**
+```json
+{
+  "success": true,
+  "authenticated": true,
+  "shop": "example.myshopify.com",
+  "scope": "read_customers,write_customers,...",
+  "installedAt": "2024-01-01T00:00:00.000Z"
+}
+```
 
 ### Health Check
 
