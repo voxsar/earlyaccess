@@ -34,28 +34,22 @@ function WishlistAdminBlock() {
     setLoading(true);
     setError(null);
     try {
-      const customerData = await query('query GetCustomerWishlist($customerId:ID!){customer(id:$customerId){id email firstName lastName metafield(namespace:"app",key:"wishlist"){value}}}', { variables: { customerId: customerId } });
-      const customer = customerData?.data?.customer;
-      if (!customer) {
-        setError('Customer not found');
-        setLoading(false);
-        return;
-      }
-      const wishlistValue = customer.metafield?.value;
+      const customerData = await query('query($customerId:ID!){customer(id:$customerId){metafield(namespace:"app",key:"wishlist"){value}}}', { variables: { customerId } });
+      const wishlistValue = customerData?.data?.customer?.metafield?.value;
       if (!wishlistValue) {
         setWishlist([]);
         setLoading(false);
         return;
       }
       const productIds = JSON.parse(wishlistValue);
-      if (!productIds || productIds.length === 0) {
+      if (!productIds?.length) {
         setWishlist([]);
         setLoading(false);
         return;
       }
-      const productsData = await query('query GetProducts($ids:[ID!]!){nodes(ids:$ids){...on Product{id title handle status featuredImage{url altText}priceRangeV2{minVariantPrice{amount currencyCode}}totalInventory}}}', { variables: { ids: productIds } });
+      const productsData = await query('query($ids:[ID!]!){nodes(ids:$ids){...on Product{id title handle status featuredImage{url altText}priceRangeV2{minVariantPrice{amount currencyCode}}totalInventory}}}', { variables: { ids: productIds } });
       setWishlist(productsData?.data?.nodes || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load wishlist');
     } finally {
       setLoading(false);
