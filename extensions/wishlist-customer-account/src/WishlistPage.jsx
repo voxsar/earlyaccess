@@ -32,7 +32,7 @@ function WishlistPage() {
     setLoading(true);
     setError(null);
     try {
-      const customerData = await query('query{customer{id metafield(namespace:"app",key:"wishlist"){value}}}');
+      const customerData = await query('query{customer{metafield(namespace:"app",key:"wishlist"){value}}}');
       const wishlistValue = customerData?.data?.customer?.metafield?.value;
       if (!wishlistValue) {
         setWishlist([]);
@@ -40,14 +40,14 @@ function WishlistPage() {
         return;
       }
       const productIds = JSON.parse(wishlistValue);
-      if (!productIds || productIds.length === 0) {
+      if (!productIds?.length) {
         setWishlist([]);
         setLoading(false);
         return;
       }
-      const productsData = await query('query GetProducts($ids:[ID!]!){nodes(ids:$ids){...on Product{id title handle onlineStoreUrl priceRange{minVariantPrice{amount currencyCode}}featuredImage{url altText}availableForSale totalInventory}}}', { variables: { ids: productIds } });
+      const productsData = await query('query($ids:[ID!]!){nodes(ids:$ids){...on Product{id title handle onlineStoreUrl priceRange{minVariantPrice{amount currencyCode}}featuredImage{url altText}availableForSale}}}', { variables: { ids: productIds } });
       setWishlist(productsData.data?.nodes || []);
-    } catch (err) {
+    } catch {
       setError('Failed to load wishlist. Please try again.');
     } finally {
       setLoading(false);
@@ -61,14 +61,14 @@ function WishlistPage() {
       const customerId = customerData?.data?.customer?.id;
       const currentWishlist = JSON.parse(customerData?.data?.customer?.metafield?.value || '[]');
       const updatedWishlist = currentWishlist.filter((id) => id !== productId);
-      await query('mutation UpdateWishlist($customerId:ID!,$metafields:[MetafieldsSetInput!]!){metafieldsSet(metafields:$metafields){metafields{id namespace key value}userErrors{field message}}}', {
+      await query('mutation($customerId:ID!,$metafields:[MetafieldsSetInput!]!){metafieldsSet(metafields:$metafields){userErrors{message}}}', {
         variables: {
-          customerId: customerId,
+          customerId,
           metafields: [{ ownerId: customerId, namespace: 'app', key: 'wishlist', value: JSON.stringify(updatedWishlist), type: 'list.product_reference' }],
         },
       });
       setWishlist(wishlist.filter((item) => item.id !== productId));
-    } catch (err) {
+    } catch {
       setError('Failed to remove item. Please try again.');
     } finally {
       setRemoveLoading({ loading: false, id: null });
