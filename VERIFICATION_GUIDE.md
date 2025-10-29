@@ -43,7 +43,7 @@ The wishlist extensions exceeded Shopify's 64 KB bundle size limit:
 
 ### Step 1: Build the Extensions
 ```bash
-cd /home/runner/work/earlyaccess/earlyaccess
+# From repository root
 npm run dev
 ```
 
@@ -132,7 +132,7 @@ Check commit history and review individual changes if issues arise.
 ### Module not found errors
 Run `npm install` in extension directories from the repository root:
 ```bash
-cd /home/runner/work/earlyaccess/earlyaccess
+# From repository root
 cd extensions/wishlist-admin && npm install
 cd ../wishlist-customer-account && npm install
 ```
