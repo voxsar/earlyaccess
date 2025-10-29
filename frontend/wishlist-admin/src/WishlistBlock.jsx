@@ -15,11 +15,7 @@ import {
 import { useEffect, useState } from 'react';
 import { getCustomerWishlist } from './api/backendApi';
 
-export default extension('admin.customer-details.block.render', (root, api) => {
-	const { data } = api;
-	let wishlist = [];
-	let loading = true;
-	let error = null;
+export default reactExtension('admin.customer-details.block.render', () => <WishlistAdminBlock />);
 
 function WishlistAdminBlock() {
   const { data } = useApi();
