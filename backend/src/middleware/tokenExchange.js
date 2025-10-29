@@ -43,22 +43,44 @@ function verifySessionToken(sessionToken) {
 async function exchangeToken(sessionToken, shop) {
 	const tokenExchangeUrl = `https://${shop}/admin/oauth/access_token`;
 
-	const requestBody = new URLSearchParams({
-		grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-		client_id: process.env.SHOPIFY_API_KEY,
-		client_secret: process.env.SHOPIFY_API_SECRET,
-		subject_token: sessionToken,
-		subject_token_type: 'urn:ietf:params:oauth:token-type:id_token',
-		requested_token_type: 'urn:ietf:params:oauth:token-type:access_token'
-	});
+	// Support both JSON and form-encoded formats
+	const useJson = process.env.TOKEN_EXCHANGE_FORMAT === 'json';
+	
+	let requestBody, headers;
+	
+	if (useJson) {
+		// JSON format (as shown in Shopify docs)
+		requestBody = JSON.stringify({
+			grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+			client_id: process.env.SHOPIFY_API_KEY,
+			client_secret: process.env.SHOPIFY_API_SECRET,
+			subject_token: sessionToken,
+			subject_token_type: 'urn:ietf:params:oauth:token-type:id_token'
+		});
+		headers = {
+			'Content-Type': 'application/json',
+			'Accept': 'application/json'
+		};
+	} else {
+		// Form-encoded format (current implementation)
+		requestBody = new URLSearchParams({
+			grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+			client_id: process.env.SHOPIFY_API_KEY,
+			client_secret: process.env.SHOPIFY_API_SECRET,
+			subject_token: sessionToken,
+			subject_token_type: 'urn:ietf:params:oauth:token-type:id_token',
+			requested_token_type: 'urn:ietf:params:oauth:token-type:access_token'
+		});
+		headers = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Accept': 'application/json'
+		};
+	}
 
 	try {
 		const response = await fetch(tokenExchangeUrl, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'Accept': 'application/json'
-			},
+			headers,
 			body: requestBody
 		});
 

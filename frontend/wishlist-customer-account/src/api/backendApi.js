@@ -53,15 +53,23 @@ export async function removeFromWishlist(customerId, productId) {
 /**
  * Get current customer's wishlist
  */
-export async function getWishlist(customerId) {
+export async function getWishlist(customerId, sessionToken) {
 	console.log('Fetching wishlist for customer ID:', customerId);
+
+	const headers = {
+		'Content-Type': 'application/json',
+	};
+
+	// Use session token if available (embedded app), otherwise fall back to customer ID
+	if (sessionToken) {
+		headers['Authorization'] = `Bearer ${sessionToken}`;
+	} else {
+		headers['X-Customer-Id'] = customerId;
+	}
 
 	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/current`, {
 		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-Customer-Id': customerId,
-		},
+		headers,
 	});
 
 	if (!response.ok) {
