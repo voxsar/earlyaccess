@@ -104,15 +104,6 @@ async function tokenExchangeAuth(req, res, next) {
 	try {
 		// Get session token from Authorization header
 		const authHeader = req.headers.authorization;
-		if (!authHeader || !authHeader.startsWith('Bearer ')) {
-			return res.status(401).json({
-				success: false,
-				error: {
-					code: 'MISSING_SESSION_TOKEN',
-					message: 'Session token required in Authorization header'
-				}
-			});
-		}
 
 		const sessionToken = authHeader.substring(7); // Remove 'Bearer '
 
