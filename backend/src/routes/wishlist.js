@@ -10,13 +10,13 @@ const authMiddleware = require('../middleware/auth');
  * POST /api/wishlist/add
  * Add a product to customer's wishlist
  */
-router.post('/add', authMiddleware, wishlistController.addToWishlist);
+router.post('/add', wishlistController.addToWishlist);
 
 /**
  * POST /api/wishlist/remove
  * Remove a product from customer's wishlist
  */
-router.post('/remove', authMiddleware, wishlistController.removeFromWishlist);
+router.post('/remove', wishlistController.removeFromWishlist);
 
 /**
  * GET /api/wishlist/:customerId
