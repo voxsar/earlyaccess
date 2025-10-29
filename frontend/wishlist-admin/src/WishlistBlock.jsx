@@ -12,11 +12,12 @@ import {
   Badge,
 } from '@shopify/ui-extensions-react/admin';
 import { useEffect, useState } from 'react';
+import { getCustomerWishlist } from './api/backendApi';
 
 export default reactExtension('admin.customer-details.block.render', () => <WishlistAdminBlock />);
 
 function WishlistAdminBlock() {
-  const { data, query } = useApi();
+  const { data } = useApi();
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,22 +35,10 @@ function WishlistAdminBlock() {
     setLoading(true);
     setError(null);
     try {
-      const customerData = await query('query($customerId:ID!){customer(id:$customerId){metafield(namespace:"app",key:"wishlist"){value}}}', { variables: { customerId } });
-      const wishlistValue = customerData?.data?.customer?.metafield?.value;
-      if (!wishlistValue) {
-        setWishlist([]);
-        setLoading(false);
-        return;
-      }
-      const productIds = JSON.parse(wishlistValue);
-      if (!productIds?.length) {
-        setWishlist([]);
-        setLoading(false);
-        return;
-      }
-      const productsData = await query('query($ids:[ID!]!){nodes(ids:$ids){...on Product{id title handle status featuredImage{url altText}priceRangeV2{minVariantPrice{amount currencyCode}}totalInventory}}}', { variables: { ids: productIds } });
-      setWishlist(productsData?.data?.nodes || []);
-    } catch {
+      const items = await getCustomerWishlist(customerId);
+      setWishlist(items);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
       setError('Failed to load wishlist');
     } finally {
       setLoading(false);
@@ -73,19 +62,20 @@ function WishlistAdminBlock() {
         <BlockStack spacing="base">
           <Text tone="subdued">{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in wishlist</Text>
           <BlockStack spacing="base">
-            {wishlist.map((product) => (
-              <BlockStack key={product.id} spacing="base" inlineAlignment="start">
+            {wishlist.map((item) => (
+              <BlockStack key={item.productId} spacing="base" inlineAlignment="start">
                 <InlineStack spacing="base" blockAlignment="center">
-                  {product.featuredImage && <Image source={product.featuredImage.url} alt={product.featuredImage.altText || product.title} />}
+                  {item.imageUrl && <Image source={item.imageUrl} alt={item.title} />}
                   <BlockStack spacing="base">
-                    <Link url={`shopify://admin/products/${product.id.split('/').pop()}`}>
-                      <Text fontWeight="bold">{product.title}</Text>
+                    <Link url={`shopify://admin/products/${item.productId.split('/').pop()}`}>
+                      <Text fontWeight="bold">{item.title}</Text>
                     </Link>
                     <InlineStack spacing="base">
-                      <Badge tone={product.status === 'ACTIVE' ? 'success' : 'info'}>{product.status}</Badge>
-                      {product.totalInventory !== null && <Text tone="subdued">{product.totalInventory} in stock</Text>}
+                      <Badge tone={item.availableForSale ? 'success' : 'info'}>
+                        {item.availableForSale ? 'Available' : 'Unavailable'}
+                      </Badge>
                     </InlineStack>
-                    <Text fontWeight="bold">{product.priceRangeV2?.minVariantPrice?.amount} {product.priceRangeV2?.minVariantPrice?.currencyCode}</Text>
+                    <Text fontWeight="bold">{item.price} {item.currency}</Text>
                   </BlockStack>
                 </InlineStack>
               </BlockStack>
