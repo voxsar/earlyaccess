@@ -75,62 +75,46 @@ function WishlistPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <Page title="My Wishlist">
+  return (
+    <Page title="My Wishlist">
+      {loading ? (
         <BlockStack spacing="base">
           <Spinner size="large" />
           <Text>Loading your wishlist...</Text>
         </BlockStack>
-      </Page>
-    );
-  }
-
-  if (error) {
-    return (
-      <Page title="My Wishlist">
+      ) : error ? (
         <Banner status="critical">{error}</Banner>
-      </Page>
-    );
-  }
-
-  if (wishlist.length === 0) {
-    return (
-      <Page title="My Wishlist">
+      ) : wishlist.length === 0 ? (
         <BlockStack spacing="base" inlineAlignment="center">
           <Text size="large">Your wishlist is empty</Text>
           <Text appearance="subdued">Start adding products to your wishlist to keep track of items you love!</Text>
           <Button to="/">Continue Shopping</Button>
         </BlockStack>
-      </Page>
-    );
-  }
-
-  return (
-    <Page title="My Wishlist">
-      <BlockStack spacing="base">
-        <Text appearance="subdued">{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist</Text>
-        <Grid columns={['fill', 'fill', 'fill']} spacing="base">
-          {wishlist.map((product) => (
-            <GridItem key={product.id}>
-              <View border="base" padding="base" cornerRadius="base">
-                <BlockStack spacing="base">
-                  {product.featuredImage && <Image source={product.featuredImage.url} alt={product.featuredImage.altText || product.title} aspectRatio={1} />}
-                  <BlockStack spacing="tight">
-                    <Text emphasis="bold">{product.title}</Text>
-                    <Text emphasis="bold" size="large">{i18n.formatCurrency(product.priceRange.minVariantPrice.amount, { currency: product.priceRange.minVariantPrice.currencyCode })}</Text>
-                    {!product.availableForSale && <Text appearance="critical">Out of Stock</Text>}
+      ) : (
+        <BlockStack spacing="base">
+          <Text appearance="subdued">{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist</Text>
+          <Grid columns={['fill', 'fill', 'fill']} spacing="base">
+            {wishlist.map((product) => (
+              <GridItem key={product.id}>
+                <View border="base" padding="base" cornerRadius="base">
+                  <BlockStack spacing="base">
+                    {product.featuredImage && <Image source={product.featuredImage.url} alt={product.featuredImage.altText || product.title} aspectRatio={1} />}
+                    <BlockStack spacing="tight">
+                      <Text emphasis="bold">{product.title}</Text>
+                      <Text emphasis="bold" size="large">{i18n.formatCurrency(product.priceRange.minVariantPrice.amount, { currency: product.priceRange.minVariantPrice.currencyCode })}</Text>
+                      {!product.availableForSale && <Text appearance="critical">Out of Stock</Text>}
+                    </BlockStack>
+                    <InlineStack spacing="tight">
+                      <Button to={product.onlineStoreUrl} kind="primary">View Product</Button>
+                      <Button loading={removeLoading.loading && product.id === removeLoading.id} onPress={() => removeFromWishlist(product.id)}>Remove</Button>
+                    </InlineStack>
                   </BlockStack>
-                  <InlineStack spacing="tight">
-                    <Button to={product.onlineStoreUrl} kind="primary">View Product</Button>
-                    <Button loading={removeLoading.loading && product.id === removeLoading.id} onPress={() => removeFromWishlist(product.id)}>Remove</Button>
-                  </InlineStack>
-                </BlockStack>
-              </View>
-            </GridItem>
-          ))}
-        </Grid>
-      </BlockStack>
+                </View>
+              </GridItem>
+            ))}
+          </Grid>
+        </BlockStack>
+      )}
     </Page>
   );
 }

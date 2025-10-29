@@ -62,65 +62,43 @@ function WishlistAdminBlock() {
     }
   }
 
-  if (!customerId) {
-    return (
-      <AdminBlock title="Customer Wishlist">
+  return (
+    <AdminBlock title="Customer Wishlist">
+      {!customerId ? (
         <Text>No customer selected</Text>
-      </AdminBlock>
-    );
-  }
-
-  if (loading) {
-    return (
-      <AdminBlock title="Customer Wishlist">
+      ) : loading ? (
         <BlockStack spacing="base">
           <ProgressIndicator size="small-100" />
           <Text>Loading wishlist...</Text>
         </BlockStack>
-      </AdminBlock>
-    );
-  }
-
-  if (error) {
-    return (
-      <AdminBlock title="Customer Wishlist">
+      ) : error ? (
         <Banner status="critical">{error}</Banner>
-      </AdminBlock>
-    );
-  }
-
-  if (wishlist.length === 0) {
-    return (
-      <AdminBlock title="Customer Wishlist">
+      ) : wishlist.length === 0 ? (
         <Text tone="subdued">This customer hasn't added any products to their wishlist yet.</Text>
-      </AdminBlock>
-    );
-  }
-
-  return (
-    <AdminBlock title="Customer Wishlist">
-      <BlockStack spacing="base">
-        <Text tone="subdued">{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in wishlist</Text>
+      ) : (
         <BlockStack spacing="base">
-          {wishlist.map((product) => (
-            <BlockStack key={product.id} spacing="base" inlineAlignment="start">
-              <InlineStack spacing="base" blockAlignment="center">
-                {product.featuredImage && <Image source={product.featuredImage.url} alt={product.featuredImage.altText || product.title} />}
-                <BlockStack spacing="base">
-                  <Link url={`shopify://admin/products/${product.id.split('/').pop()}`}>
-                    <Text fontWeight="bold">{product.title}</Text>
-                  </Link>
-                  <InlineStack spacing="base">
-                    <Badge tone={product.status === 'ACTIVE' ? 'success' : 'info'}>{product.status}</Badge>
-                    {product.totalInventory !== null && <Text tone="subdued">{product.totalInventory} in stock</Text>}
-                  </InlineStack>
-                  <Text fontWeight="bold">{product.priceRangeV2?.minVariantPrice?.amount} {product.priceRangeV2?.minVariantPrice?.currencyCode}</Text>
-                </BlockStack>
-              </InlineStack>
-            </BlockStack>
-          ))}
+          <Text tone="subdued">{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in wishlist</Text>
+          <BlockStack spacing="base">
+            {wishlist.map((product) => (
+              <BlockStack key={product.id} spacing="base" inlineAlignment="start">
+                <InlineStack spacing="base" blockAlignment="center">
+                  {product.featuredImage && <Image source={product.featuredImage.url} alt={product.featuredImage.altText || product.title} />}
+                  <BlockStack spacing="base">
+                    <Link url={`shopify://admin/products/${product.id.split('/').pop()}`}>
+                      <Text fontWeight="bold">{product.title}</Text>
+                    </Link>
+                    <InlineStack spacing="base">
+                      <Badge tone={product.status === 'ACTIVE' ? 'success' : 'info'}>{product.status}</Badge>
+                      {product.totalInventory !== null && <Text tone="subdued">{product.totalInventory} in stock</Text>}
+                    </InlineStack>
+                    <Text fontWeight="bold">{product.priceRangeV2?.minVariantPrice?.amount} {product.priceRangeV2?.minVariantPrice?.currencyCode}</Text>
+                  </BlockStack>
+                </InlineStack>
+              </BlockStack>
+            ))}
+          </BlockStack>
         </BlockStack>
-      </BlockStack>
+      )}
     </AdminBlock>
   );
 }
