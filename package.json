@@ -4,6 +4,8 @@
   "description": "Shopify app for wishlist and early access functionality",
   "scripts": {
     "dev": "shopify app dev",
+    "dev:full": "concurrently \"npm run dev:backend\" \"npm run dev\"",
+    "dev:backend": "cd backend && npm run dev",
     "deploy": "shopify app deploy",
     "generate": "shopify app generate",
     "info": "shopify app info"
@@ -18,5 +20,8 @@
   "license": "MIT",
   "dependencies": {
     "@shopify/cli": "^3.86.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
