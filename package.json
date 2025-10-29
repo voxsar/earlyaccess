@@ -19,7 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@shopify/cli": "^3.86.0"
+    "@shopify/cli": "^3.86.1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

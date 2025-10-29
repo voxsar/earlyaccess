@@ -31,7 +31,7 @@ async function addToWishlist(req, res, next) {
 			});
 		}
 
-		const result = await wishlistService.addToWishlist(customerId, productId);
+		const result = await wishlistService.addToWishlist(customerId, productId, req.shopifySession);
 
 		res.status(200).json({
 			success: true,
@@ -74,7 +74,8 @@ async function removeFromWishlist(req, res, next) {
 
 		const result = await wishlistService.removeFromWishlist(
 			customerId,
-			productId
+			productId,
+			req.shopifySession
 		);
 
 		res.status(200).json({
@@ -106,7 +107,7 @@ async function getWishlist(req, res, next) {
 			});
 		}
 
-		const wishlist = await wishlistService.getWishlistWithProducts(customerId);
+		const wishlist = await wishlistService.getWishlistWithProducts(customerId, req.shopifySession);
 
 		res.status(200).json({
 			success: true,
@@ -136,7 +137,7 @@ async function getCurrentWishlist(req, res, next) {
 			});
 		}
 
-		const wishlist = await wishlistService.getWishlistWithProducts(customerId);
+		const wishlist = await wishlistService.getWishlistWithProducts(customerId, req.shopifySession);
 
 		res.status(200).json({
 			success: true,

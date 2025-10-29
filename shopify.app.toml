@@ -21,7 +21,8 @@ scopes = "write_customers,read_customers,write_products,read_products,write_disc
 [auth]
 redirect_urls = [
   "https://shopify.dev/apps/default-app-home/api/auth",
-  "https://shopify.dev/apps/default-app-home/api/auth/callback"
+  "https://shopify.dev/apps/default-app-home/api/auth/callback",
+  "https://earlyaccessapi.dev.artslabcreatives.com/api/auth/callback"
 ]
 
 [webhooks]

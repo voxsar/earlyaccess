@@ -8,9 +8,11 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 
 const wishlistRoutes = require('./routes/wishlist');
 const healthRoutes = require('./routes/health');
+const authRoutes = require('./routes/auth');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -30,6 +32,17 @@ const corsOptions = {
 	optionsSuccessStatus: 200,
 };
 
+// Session configuration
+app.use(session({
+	secret: process.env.SESSION_SECRET || 'your-secret-key',
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		secure: process.env.NODE_ENV === 'production',
+		maxAge: 24 * 60 * 60 * 1000 // 24 hours
+	}
+}));
+
 // Middleware
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
@@ -43,6 +56,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/health', healthRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 
 // Error handling

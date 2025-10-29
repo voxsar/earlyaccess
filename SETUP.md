@@ -93,6 +93,7 @@ cd ../..
 3. Add **Allowed redirection URLs**:
    - `https://shopify.dev/apps/default-app-home/api/auth`
    - `https://shopify.dev/apps/default-app-home/api/auth/callback`
+   - `https://earlyaccessapi.dev.artslabcreatives.com/api/auth/callback`
 
 ### 5. Start Development Server
 
