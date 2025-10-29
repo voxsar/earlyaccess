@@ -3,6 +3,7 @@
  * Handles interactions with Shopify Admin GraphQL API
  */
 const { shopifyApi, ApiVersion } = require('@shopify/shopify-api');
+require('@shopify/shopify-api/adapters/node');
 const path = require('path');
 
 // Lazy-initialized Shopify API instance. This avoids initializing the
@@ -29,25 +30,55 @@ function ensureShopifyInitialized() {
 	shopify = shopifyApi({
 		apiKey,
 		apiSecretKey,
-		scopes: ['read_customers', 'write_customers', 'read_products'],
+		scopes: ['read_customers', 'write_customers', 'read_products', 'write_customer_metafields', 'read_customer_metafields'],
 		hostName: shopDomain.replace('.myshopify.com', ''),
-		apiVersion: ApiVersion.October24,
-		isEmbeddedApp: false,
+		apiVersion: ApiVersion.April24,
+		isEmbeddedApp: true, // Enable token exchange for embedded apps
 	});
 
 	return shopify;
 }
 
 /**
- * Create GraphQL client
+ * Create GraphQL client with session from token exchange
  */
-function getGraphQLClient() {
+function getGraphQLClient(session) {
 	const shopifyInstance = ensureShopifyInitialized();
+
+	if (!session) {
+		throw new Error('Shopify session is required. Ensure token exchange middleware is used.');
+	}
+
+	if (!session.accessToken || !session.shop) {
+		throw new Error('Invalid session: missing accessToken or shop');
+	}
+
+	console.log('🔗 Creating GraphQL client for shop:', session.shop);
+
+	return new shopifyInstance.clients.Graphql({ session });
+}
+
+/**
+ * Create GraphQL client with static token (fallback for development)
+ */
+function getGraphQLClientStatic() {
+	const shopifyInstance = ensureShopifyInitialized();
+
+	const accessToken = process.env.SHOPIFY_ACCESS_TOKEN;
+	if (!accessToken) {
+		throw new Error('SHOPIFY_ACCESS_TOKEN environment variable is required');
+	}
+
+	if (!accessToken.startsWith('shpat_')) {
+		console.warn('⚠️  Access token should start with "shpat_". Current token may be invalid.');
+	}
 
 	const session = {
 		shop: process.env.SHOPIFY_SHOP_DOMAIN,
-		accessToken: process.env.SHOPIFY_ACCESS_TOKEN,
+		accessToken: accessToken,
 	};
+
+	console.log('🔗 Creating static GraphQL client for shop:', session.shop);
 
 	return new shopifyInstance.clients.Graphql({ session });
 }
@@ -55,8 +86,8 @@ function getGraphQLClient() {
 /**
  * Get customer metafield
  */
-async function getCustomerMetafield(customerId, namespace, key) {
-	const client = getGraphQLClient();
+async function getCustomerMetafield(customerId, namespace, key, session = null) {
+	const client = session ? getGraphQLClient(session) : getGraphQLClientStatic();
 
 	const query = `
     query getCustomerMetafield($customerId: ID!, $namespace: String!, $key: String!) {
@@ -72,18 +103,15 @@ async function getCustomerMetafield(customerId, namespace, key) {
   `;
 
 	try {
-		const response = await client.query({
-			data: {
-				query,
-				variables: {
-					customerId,
-					namespace,
-					key,
-				},
+		const response = await client.request(query, {
+			variables: {
+				customerId,
+				namespace,
+				key,
 			},
 		});
 
-		return response.body?.data?.customer?.metafield;
+		return response.data?.customer?.metafield;
 	} catch (error) {
 		console.error('Error getting customer metafield:', error);
 		throw error;
@@ -98,9 +126,10 @@ async function updateCustomerMetafield(
 	namespace,
 	key,
 	value,
-	type
+	type,
+	session = null
 ) {
-	const client = getGraphQLClient();
+	const client = session ? getGraphQLClient(session) : getGraphQLClientStatic();
 
 	const mutation = `
     mutation updateCustomerMetafield($metafields: [MetafieldsSetInput!]!) {
@@ -120,29 +149,26 @@ async function updateCustomerMetafield(
   `;
 
 	try {
-		const response = await client.query({
-			data: {
-				query: mutation,
-				variables: {
-					metafields: [
-						{
-							ownerId: customerId,
-							namespace,
-							key,
-							value,
-							type,
-						},
-					],
-				},
+		const response = await client.request(mutation, {
+			variables: {
+				metafields: [
+					{
+						ownerId: customerId,
+						namespace,
+						key,
+						value,
+						type,
+					},
+				],
 			},
 		});
 
-		const errors = response.body?.data?.metafieldsSet?.userErrors;
+		const errors = response.data?.metafieldsSet?.userErrors;
 		if (errors && errors.length > 0) {
 			throw new Error(`Metafield update failed: ${errors[0].message}`);
 		}
 
-		return response.body?.data?.metafieldsSet?.metafields[0];
+		return response.data?.metafieldsSet?.metafields[0];
 	} catch (error) {
 		console.error('Error updating customer metafield:', error);
 		throw error;
@@ -152,8 +178,8 @@ async function updateCustomerMetafield(
 /**
  * Get products by IDs
  */
-async function getProductsByIds(productIds) {
-	const client = getGraphQLClient();
+async function getProductsByIds(productIds, session = null) {
+	const client = session ? getGraphQLClient(session) : getGraphQLClientStatic();
 
 	const query = `
     query getProducts($ids: [ID!]!) {
@@ -181,16 +207,13 @@ async function getProductsByIds(productIds) {
   `;
 
 	try {
-		const response = await client.query({
-			data: {
-				query,
-				variables: {
-					ids: productIds,
-				},
+		const response = await client.request(query, {
+			variables: {
+				ids: productIds,
 			},
 		});
 
-		return response.body?.data?.nodes || [];
+		return response.data?.nodes || [];
 	} catch (error) {
 		console.error('Error getting products:', error);
 		throw error;
@@ -200,8 +223,8 @@ async function getProductsByIds(productIds) {
 /**
  * Get customer by ID
  */
-async function getCustomerById(customerId) {
-	const client = getGraphQLClient();
+async function getCustomerById(customerId, session = null) {
+	const client = session ? getGraphQLClient(session) : getGraphQLClientStatic();
 
 	const query = `
     query getCustomer($customerId: ID!) {
@@ -215,16 +238,13 @@ async function getCustomerById(customerId) {
   `;
 
 	try {
-		const response = await client.query({
-			data: {
-				query,
-				variables: {
-					customerId,
-				},
+		const response = await client.request(query, {
+			variables: {
+				customerId,
 			},
 		});
 
-		return response.body?.data?.customer;
+		return response.data?.customer;
 	} catch (error) {
 		console.error('Error getting customer:', error);
 		throw error;
