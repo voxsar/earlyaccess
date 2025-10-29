@@ -24,6 +24,9 @@ The wishlist extensions exceeded Shopify's 64 KB bundle size limit:
 - Simplified error handling
 - Reduction: 4995 → 4867 bytes (128 bytes saved)
 
+**File: `extensions/wishlist-customer-account/src/ProfileBlock.jsx`**
+- No changes needed (already minimal at 531 bytes)
+
 ### 2. Documentation
 **File: `BACKEND_API_RECOMMENDATION.md` (NEW)**
 - Answers: "is there an api that it connects to in the backend to offload functions?"
@@ -94,11 +97,11 @@ The extensions were bundling React and other dependencies instead of using Shopi
 
 ### Estimated Bundle Sizes
 
-| Extension | Before | After | Savings |
-|-----------|--------|-------|---------|
-| wishlist-admin | 74 KB | ~20 KB | 54 KB (73%) |
-| wishlist-fullpage | 74 KB | ~25 KB | 49 KB (66%) |
-| wishlist-profile-block | 73 KB | ~10 KB | 63 KB (86%) |
+| Extension              | Before | After  | Savings       |
+|------------------------|--------|--------|---------------|
+| wishlist-admin         | 74 KB  | ~20 KB | 54 KB (73%)   |
+| wishlist-fullpage      | 74 KB  | ~25 KB | 49 KB (66%)   |
+| wishlist-profile-block | 73 KB  | ~10 KB | 63 KB (86%)   |
 
 All are well under the 64 KB limit.
 
@@ -127,8 +130,9 @@ All changes were surgical - no logic modified, only:
 Check commit history and review individual changes if issues arise.
 
 ### Module not found errors
-Run `npm install` in extension directories:
+Run `npm install` in extension directories from the repository root:
 ```bash
+cd /home/runner/work/earlyaccess/earlyaccess
 cd extensions/wishlist-admin && npm install
 cd ../wishlist-customer-account && npm install
 ```
