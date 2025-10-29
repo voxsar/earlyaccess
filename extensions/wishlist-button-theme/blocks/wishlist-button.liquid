@@ -4,6 +4,9 @@
   Requires customer to be logged in
 {% endcomment %}
 
+{{ 'wishlist-button.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'wishlist-button.js' | asset_url }}" defer></script>
+
 <div class="wishlist-button-wrapper" data-product-id="{{ product.id }}">
   {% if customer %}
     <button 
@@ -112,8 +115,6 @@
       "label": "Icon Color",
       "default": "#ff0000"
     }
-  ],
-  "stylesheet": "wishlist-button.css",
-  "javascript": "wishlist-button.js"
+  ]
 }
 {% endschema %}
