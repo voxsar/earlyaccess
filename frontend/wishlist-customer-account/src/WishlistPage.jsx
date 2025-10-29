@@ -1,119 +1,127 @@
-import {
-  reactExtension,
-  useApi,
-  BlockStack,
-  InlineStack,
-  Text,
-  Button,
-  Image,
-  Spinner,
-  Banner,
-  Grid,
-  GridItem,
-  View,
-  Page,
-} from '@shopify/ui-extensions-react/customer-account';
-import { useEffect, useState } from 'react';
+import { extension, Page, BlockStack, InlineStack, Text, Button, Image, Spinner, Banner, Grid, GridItem, View } from '@shopify/ui-extensions/customer-account';
 import { getWishlist, removeFromWishlist } from './api/backendApi';
 
-export default reactExtension('customer-account.page.render', () => <WishlistPage />);
+export default extension('customer-account.page.render', (root, api) => {
+	const { query, i18n } = api;
+	let wishlist = [];
+	let loading = true;
+	let error = null;
+	let customerId = null;
+	let removeLoading = { id: null, loading: false };
 
-function WishlistPage() {
-  const { query, i18n } = useApi();
-  const [wishlist, setWishlist] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [removeLoading, setRemoveLoading] = useState({ id: null, loading: false });
-  const [customerId, setCustomerId] = useState(null);
+	// Fetch customer ID
+	async function fetchCustomerId() {
+		try {
+			const customerData = await query('query{customer{id}}');
+			customerId = customerData?.data?.customer?.id;
+			if (customerId) {
+				await fetchWishlist();
+			}
+		} catch (err) {
+			console.error('Error fetching customer ID:', err);
+			error = 'Failed to load customer data. Please try again.';
+			loading = false;
+			root.render(renderUI());
+		}
+	}
 
-  useEffect(() => {
-    fetchCustomerId();
-  }, []);
+	// Fetch wishlist data
+	async function fetchWishlist() {
+		loading = true;
+		error = null;
+		root.render(renderUI());
 
-  useEffect(() => {
-    if (customerId) {
-      fetchWishlist();
-    }
-  }, [customerId]);
+		try {
+			const items = await getWishlist(customerId);
+			wishlist = items;
+		} catch (err) {
+			console.error('Error fetching wishlist:', err);
+			error = 'Failed to load wishlist. Please try again.';
+		} finally {
+			loading = false;
+			root.render(renderUI());
+		}
+	}
 
-  async function fetchCustomerId() {
-    try {
-      const customerData = await query('query{customer{id}}');
-      setCustomerId(customerData?.data?.customer?.id);
-    } catch (error) {
-      console.error('Error fetching customer ID:', error);
-      setError('Failed to load customer data. Please try again.');
-      setLoading(false);
-    }
-  }
+	// Handle remove from wishlist
+	async function handleRemoveFromWishlist(productId) {
+		removeLoading = { loading: true, id: productId };
+		root.render(renderUI());
 
-  async function fetchWishlist() {
-    setLoading(true);
-    setError(null);
-    try {
-      const items = await getWishlist(customerId);
-      setWishlist(items);
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
-      setError('Failed to load wishlist. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }
+		try {
+			await removeFromWishlist(customerId, productId);
+			wishlist = wishlist.filter((item) => item.productId !== productId);
+		} catch (err) {
+			console.error('Error removing from wishlist:', err);
+			error = 'Failed to remove item. Please try again.';
+		} finally {
+			removeLoading = { loading: false, id: null };
+			root.render(renderUI());
+		}
+	}
 
-  async function handleRemoveFromWishlist(productId) {
-    setRemoveLoading({ loading: true, id: productId });
-    try {
-      await removeFromWishlist(customerId, productId);
-      setWishlist(wishlist.filter((item) => item.productId !== productId));
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-      setError('Failed to remove item. Please try again.');
-    } finally {
-      setRemoveLoading({ loading: false, id: null });
-    }
-  }
+	// Function to render the UI
+	function renderUI() {
+		if (loading) {
+			return root.createComponent(Page, { title: 'My Wishlist' }, [
+				root.createComponent(BlockStack, { spacing: 'base' }, [
+					root.createComponent(Spinner, { size: 'large' }),
+					root.createComponent(Text, {}, 'Loading your wishlist...')
+				])
+			]);
+		}
 
-  return (
-    <Page title="My Wishlist">
-      {loading ? (
-        <BlockStack spacing="base">
-          <Spinner size="large" />
-          <Text>Loading your wishlist...</Text>
-        </BlockStack>
-      ) : error ? (
-        <Banner status="critical">{error}</Banner>
-      ) : wishlist.length === 0 ? (
-        <BlockStack spacing="base" inlineAlignment="center">
-          <Text size="large">Your wishlist is empty</Text>
-          <Text appearance="subdued">Start adding products to your wishlist to keep track of items you love!</Text>
-          <Button to="/">Continue Shopping</Button>
-        </BlockStack>
-      ) : (
-        <BlockStack spacing="base">
-          <Text appearance="subdued">{wishlist.length} {wishlist.length === 1 ? 'item' : 'items'} in your wishlist</Text>
-          <Grid columns={['fill', 'fill', 'fill']} spacing="base">
-            {wishlist.map((item) => (
-              <GridItem key={item.productId}>
-                <View border="base" padding="base" cornerRadius="base">
-                  <BlockStack spacing="base">
-                    {item.imageUrl && <Image source={item.imageUrl} alt={item.title} aspectRatio={1} />}
-                    <BlockStack spacing="tight">
-                      <Text emphasis="bold">{item.title}</Text>
-                      <Text emphasis="bold" size="large">{i18n.formatCurrency(item.price, { currency: item.currency })}</Text>
-                      {!item.availableForSale && <Text appearance="critical">Out of Stock</Text>}
-                    </BlockStack>
-                    <InlineStack spacing="tight">
-                      <Button to={item.url} kind="primary">View Product</Button>
-                      <Button loading={removeLoading.loading && item.productId === removeLoading.id} onPress={() => handleRemoveFromWishlist(item.productId)}>Remove</Button>
-                    </InlineStack>
-                  </BlockStack>
-                </View>
-              </GridItem>
-            ))}
-          </Grid>
-        </BlockStack>
-      )}
-    </Page>
-  );
-}
+		if (error) {
+			return root.createComponent(Page, { title: 'My Wishlist' }, [
+				root.createComponent(Banner, { status: 'critical' }, error)
+			]);
+		}
+
+		if (wishlist.length === 0) {
+			return root.createComponent(Page, { title: 'My Wishlist' }, [
+				root.createComponent(BlockStack, { spacing: 'base', inlineAlignment: 'center' }, [
+					root.createComponent(Text, { size: 'large' }, 'Your wishlist is empty'),
+					root.createComponent(Text, { appearance: 'subdued' },
+						'Start adding products to your wishlist to keep track of items you love!'),
+					root.createComponent(Button, { to: '/' }, 'Continue Shopping')
+				])
+			]);
+		}
+
+		// Render wishlist items
+		const items = wishlist.map((item) => {
+			return root.createComponent(GridItem, {}, [
+				root.createComponent(View, { border: 'base', padding: 'base', cornerRadius: 'base' }, [
+					root.createComponent(BlockStack, { spacing: 'base' }, [
+						...(item.imageUrl ? [root.createComponent(Image, { source: item.imageUrl, alt: item.title, aspectRatio: 1 })] : []),
+						root.createComponent(BlockStack, { spacing: 'tight' }, [
+							root.createComponent(Text, { emphasis: 'bold' }, item.title),
+							root.createComponent(Text, { emphasis: 'bold', size: 'large' },
+								i18n.formatCurrency(item.price, { currency: item.currency })),
+							...(!item.availableForSale ? [root.createComponent(Text, { appearance: 'critical' }, 'Out of Stock')] : [])
+						]),
+						root.createComponent(InlineStack, { spacing: 'tight' }, [
+							root.createComponent(Button, { to: item.url, kind: 'primary' }, 'View Product'),
+							root.createComponent(Button, {
+								loading: removeLoading.loading && item.productId === removeLoading.id,
+								onPress: () => handleRemoveFromWishlist(item.productId)
+							}, 'Remove')
+						])
+					])
+				])
+			]);
+		});
+
+		return root.createComponent(Page, { title: 'My Wishlist' }, [
+			root.createComponent(BlockStack, { spacing: 'base' }, [
+				root.createComponent(Text, { appearance: 'subdued' },
+					`${wishlist.length} ${wishlist.length === 1 ? 'item' : 'items'} in your wishlist`),
+				root.createComponent(Grid, { columns: ['fill', 'fill', 'fill'], spacing: 'base' }, items)
+			])
+		]);
+	}
+
+	// Initial load
+	fetchCustomerId();
+	root.render(renderUI());
+});

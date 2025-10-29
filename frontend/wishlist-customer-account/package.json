@@ -1,17 +1,15 @@
 {
-  "name": "wishlist-customer-account",
-  "version": "1.0.0",
-  "description": "Customer account extension for wishlist management",
-  "type": "module",
-  "scripts": {
-    "dev": "shopify app dev"
-  },
-  "dependencies": {
-    "@shopify/ui-extensions-react": "^2025.7",
-    "react": "^18.0.0",
-    "react-reconciler": "^0.29.0"
-  },
-  "devDependencies": {
-    "@shopify/cli": "^3.86.0"
-  }
+	"name": "wishlist-customer-account",
+	"version": "1.0.0",
+	"description": "Customer account extension for wishlist management",
+	"type": "module",
+	"scripts": {
+		"dev": "shopify app dev"
+	},
+	"dependencies": {
+		"@shopify/ui-extensions": "^2025.7"
+	},
+	"devDependencies": {
+		"@shopify/cli": "^3.86.0"
+	}
 }
