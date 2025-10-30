@@ -29,7 +29,7 @@ class WishListController extends Controller
 
             // Get current shop
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -52,7 +52,7 @@ class WishListController extends Controller
 
         } catch (\Exception $error) {
             Log::error('Error adding to wishlist: ' . $error->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -78,7 +78,7 @@ class WishListController extends Controller
 
             // Get current shop
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -99,7 +99,7 @@ class WishListController extends Controller
                 ]
             ]);
 
-        
+
     }
 
     /**
@@ -118,9 +118,14 @@ class WishListController extends Controller
                 ], 400);
             }
 
-            // Get current shop
+            // Extract numeric customer ID from Shopify GID format if needed
+            if (strpos($customerId, 'gid://shopify/Customer/') === 0) {
+                $customerId = str_replace('gid://shopify/Customer/', '', $customerId);
+            }
+
+            // Get current shop - this should be set by the verify.shopify middleware
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -142,7 +147,7 @@ class WishListController extends Controller
 
         } catch (\Exception $error) {
             Log::error('Error getting wishlist: ' . $error->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -175,7 +180,7 @@ class WishListController extends Controller
 
             // Get current shop
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -197,7 +202,7 @@ class WishListController extends Controller
 
         } catch (\Exception $error) {
             Log::error('Error getting current wishlist: ' . $error->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -222,7 +227,7 @@ class WishListController extends Controller
 
             // Get current shop
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -245,7 +250,7 @@ class WishListController extends Controller
 
         } catch (\Exception $error) {
             Log::error('Error clearing wishlist: ' . $error->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -274,7 +279,7 @@ class WishListController extends Controller
 
             // Get current shop
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -296,7 +301,7 @@ class WishListController extends Controller
 
         } catch (\Exception $error) {
             Log::error('Error getting wishlist count: ' . $error->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -325,7 +330,7 @@ class WishListController extends Controller
 
             // Get current shop
             $shop = User::first();
-            
+
             if (!$shop) {
                 return response()->json([
                     'success' => false,
@@ -347,7 +352,7 @@ class WishListController extends Controller
 
         } catch (\Exception $error) {
             Log::error('Error checking if product is in wishlist: ' . $error->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => [

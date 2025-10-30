@@ -10,8 +10,7 @@ import {
 	Link,
 	Badge
 } from '@shopify/ui-extensions/admin';
-
-export default extension('admin.customer-details.block.render', (root, api) => {
+import { getCustomerWishlist } from './api/backendApi'; export default extension('admin.customer-details.block.render', (root, api) => {
 	const { data, sessionToken } = api;
 	const customerId = data?.selected?.[0]?.id;
 
@@ -32,8 +31,8 @@ export default extension('admin.customer-details.block.render', (root, api) => {
 		loadingStack.appendChild(root.createComponent(Text, {}, 'Authenticating...'));
 		adminBlock.appendChild(loadingStack);
 	} else {
-		// Fetch wishlist data
-		fetchCustomerWishlist(customerId, sessionToken)
+		// Fetch wishlist data using the API helper
+		getCustomerWishlist(customerId, sessionToken)
 			.then(items => {
 				wishlist = items;
 				loading = false;
@@ -53,32 +52,7 @@ export default extension('admin.customer-details.block.render', (root, api) => {
 
 	root.appendChild(adminBlock);
 
-	async function fetchCustomerWishlist(customerId, sessionToken) {
-		const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
 
-		if (!sessionToken) {
-			throw new Error('Session token is required for admin API calls');
-		}
-
-		const response = await fetch(
-			`${BACKEND_API_URL}/api/wishlist/${customerId}`,
-			{
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${sessionToken}`,
-				},
-			}
-		);
-
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({}));
-			throw new Error(errorData.error?.message || 'Failed to get customer wishlist');
-		}
-
-		const data = await response.json();
-		return data.data.items;
-	}
 
 	function renderWishlist() {
 		// Clear existing content

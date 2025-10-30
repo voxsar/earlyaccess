@@ -13,8 +13,13 @@ export async function getCustomerWishlist(customerId, sessionToken) {
 		throw new Error('Session token is required for admin API calls');
 	}
 
+	// Extract numeric customer ID from Shopify GID format if needed
+	const numericCustomerId = customerId.includes('gid://shopify/Customer/')
+		? customerId.split('/').pop()
+		: customerId;
+
 	const response = await fetch(
-		`${BACKEND_API_URL}/api/wishlist/${customerId}`,
+		`${BACKEND_API_URL}/api/wishlist/customer/${numericCustomerId}`,
 		{
 			method: 'GET',
 			headers: {

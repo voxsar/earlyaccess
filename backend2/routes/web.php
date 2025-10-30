@@ -27,33 +27,33 @@ Route::get('/', function () {
 |
 */
 
-Route::middleware([])->prefix('api/wishlist')->group(function () {
+Route::middleware(['verify.shopify'])->prefix('api/wishlist')->group(function () {
     // Add product to wishlist
     Route::post('/add', [WishListController::class, 'addToWishlist'])
         ->name('wishlist.add');
-    
-    // Remove product from wishlist  
+
+    // Remove product from wishlist
     Route::get('/remove', [WishListController::class, 'removeFromWishlist'])
         ->name('wishlist.remove');
     Route::post('/remove', [WishListController::class, 'removeFromWishlist'])
         ->name('wishlist.remove');
-    
+
     // Clear entire wishlist
     Route::post('/clear', [WishListController::class, 'clearWishlist'])
         ->name('wishlist.clear');
-    
+
     // Get specific customer's wishlist
     Route::get('/customer/{customerId}', [WishListController::class, 'getWishlist'])
         ->name('wishlist.get');
-    
+
     // Get wishlist item count
     Route::get('/customer/{customerId}/count', [WishListController::class, 'getWishlistCount'])
         ->name('wishlist.count');
-    
+
     // Check if product is in wishlist
     Route::get('/customer/{customerId}/product/{productId}', [WishListController::class, 'checkProductInWishlist'])
         ->name('wishlist.check');
-    
+
     // Get current customer's wishlist (for authenticated customer)
     Route::get('/current', [WishListController::class, 'getCurrentWishlist'])
         ->name('wishlist.current');
