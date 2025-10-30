@@ -45,9 +45,9 @@ async function exchangeToken(sessionToken, shop) {
 
 	// Support both JSON and form-encoded formats
 	const useJson = process.env.TOKEN_EXCHANGE_FORMAT === 'json';
-	
+
 	let requestBody, headers;
-	
+
 	if (useJson) {
 		// JSON format (as shown in Shopify docs)
 		requestBody = JSON.stringify({
