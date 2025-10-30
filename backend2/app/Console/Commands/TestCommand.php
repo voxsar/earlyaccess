@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Auth;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -33,11 +34,11 @@ class TestCommand extends Command
     public function handle()
     {
         //
-		$shop = User::first();
-
+		$shop = Auth::loginUsingId(3);//User::first();
 		//23675680456777
 		$customerId = "gid://shopify/Customer/23675680456777";
 
+		$this->info("Getting metafield for customerId: " . $customerId );
 		$this->getCustomerMetafield(
 			$customerId,
 			self::WISHLIST_METAFIELD_NAMESPACE,
@@ -48,7 +49,7 @@ class TestCommand extends Command
 
 	public static function getCustomerMetafield($customerId, $namespace, $key, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+		$customerId = $customerId;
         $query = '
             query getCustomerMetafield($customerId: ID!, $namespace: String!, $key: String!) {
                 customer(id: $customerId) {
@@ -61,6 +62,7 @@ class TestCommand extends Command
                 }
             }
         ';
+		Log::info($query);
 
         $variables = [
             'customerId' => $customerId,
@@ -71,7 +73,7 @@ class TestCommand extends Command
         try {
             $response = $shop->api()->graph($query, $variables);
             
-            if (isset($response['errors'])) {
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomerMetafield:', $response);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response));
             }
@@ -82,4 +84,6 @@ class TestCommand extends Command
             throw $error;
         }
     }
+
+	
 }

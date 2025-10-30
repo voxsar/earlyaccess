@@ -11,7 +11,7 @@ class ShopifyService
      */
     public static function getCustomerMetafield($customerId, $namespace, $key, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+		$customerId = $customerId;
         $query = '
             query getCustomerMetafield($customerId: ID!, $namespace: String!, $key: String!) {
                 customer(id: $customerId) {
@@ -34,7 +34,7 @@ class ShopifyService
         try {
             $response = $shop->api()->graph($query, $variables);
             
-            if (isset($response['errors'])) {
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomerMetafield:', $response);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }
@@ -51,7 +51,7 @@ class ShopifyService
      */
     public static function updateCustomerMetafield($customerId, $namespace, $key, $value, $type, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+		$customerId = $customerId;
         $mutation = '
             mutation updateCustomerMetafield($metafields: [MetafieldsSetInput!]!) {
                 metafieldsSet(metafields: $metafields) {
@@ -84,17 +84,14 @@ class ShopifyService
         try {
             $response = $shop->api()->graph($mutation, $variables);
             
-            if (isset($response['errors'])) {
-                Log::error('GraphQL errors in updateCustomerMetafield:', $response['errors']);
+            if (isset($response['errors']) && $response['errors'] != false) {
+                Log::error('GraphQL errors in updateCustomerMetafield:', $response);
                 throw new \Exception('GraphQL mutation failed: ' . json_encode($response['errors']));
             }
 
             $errors = $response['body']['data']['metafieldsSet']['userErrors'] ?? [];
-            if (!empty($errors)) {
-                throw new \Exception("Metafield update failed: {$errors[0]['message']}");
-            }
-
-            return $response['body']['data']['metafieldsSet']['metafields'][0] ?? null;
+            
+            return $response['body']['data']['metafieldsSet']['metafields'] ?? null;
         } catch (\Exception $error) {
             Log::error('Error updating customer metafield: ' . $error->getMessage());
             throw $error;
@@ -138,7 +135,7 @@ class ShopifyService
         try {
             $response = $shop->api()->graph($query, $variables);
             
-            if (isset($response['errors'])) {
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getProductsByIds:', $response['errors']);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }
@@ -155,7 +152,7 @@ class ShopifyService
      */
     public static function getCustomerById($customerId, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+		$customerId = $customerId;
         $query = '
             query getCustomer($customerId: ID!) {
                 customer(id: $customerId) {
@@ -174,7 +171,7 @@ class ShopifyService
         try {
             $response = $shop->api()->graph($query, $variables);
             
-            if (isset($response['errors'])) {
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomerById:', $response['errors']);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }
@@ -226,7 +223,7 @@ class ShopifyService
         try {
             $response = $shop->api()->graph($graphqlQuery, $variables);
             
-            if (isset($response['errors'])) {
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in searchProducts:', $response['errors']);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }
@@ -275,7 +272,7 @@ class ShopifyService
         try {
             $response = $shop->api()->graph($query);
             
-            if (isset($response['errors'])) {
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomers:', $response['errors']);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }

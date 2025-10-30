@@ -21,11 +21,13 @@ class WishListController extends Controller
             $request->validate([
                 'customerId' => 'required|string',
                 'productId' => 'required|string',
-                'productHandle' => 'sometimes|string'
             ]);
 
             $customerId = $request->customerId;
             $productId = $request->productId;
+
+			$customerId = 'gid://shopify/Customer/' . $customerId;
+			$productId = 'gid://shopify/Product/' . $productId;
 
             // Get current shop
             $shop = User::first();
@@ -75,6 +77,9 @@ class WishListController extends Controller
 
             $customerId = $request->customerId;
             $productId = $request->productId;
+
+			$customerId = 'gid://shopify/Customer/' . $customerId;
+			$productId = 'gid://shopify/Product/' . $productId;
 
             // Get current shop
             $shop = User::first();

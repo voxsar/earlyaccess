@@ -10,7 +10,7 @@ return [
     |
     */
 
-    'debug' => (bool) env('SHOPIFY_DEBUG', false),
+    'debug' => (bool) env('SHOPIFY_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------

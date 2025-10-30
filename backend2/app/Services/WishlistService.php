@@ -16,6 +16,7 @@ class WishlistService
      */
     public static function addToWishlist($customerId, $productId, $shop)
     {
+        $productId = $productId;
         try {
             // Get current wishlist
             $currentWishlist = self::getCustomerWishlist($customerId, $shop);
@@ -60,10 +61,10 @@ class WishlistService
      */
     public static function removeFromWishlist($customerId, $productId, $shop)
     {
-        try {
+		Log::info("Removing productId: " . $productId . " from customerId: " . $customerId );
             // Get current wishlist
             $currentWishlist = self::getCustomerWishlist($customerId, $shop);
-
+			Log::info("Current Wishlist: " . json_encode($currentWishlist));
             // Remove product from wishlist
             $updatedWishlist = array_values(array_filter($currentWishlist, function($id) use ($productId) {
                 return $id !== $productId;
@@ -87,10 +88,7 @@ class WishlistService
                 'wishlist' => $updatedWishlist
             ];
 
-        } catch (\Exception $error) {
-            Log::error('Error removing from wishlist: ' . $error->getMessage());
-            throw new \Exception('Failed to remove product from wishlist');
-        }
+        
     }
 
     /**
