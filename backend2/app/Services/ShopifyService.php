@@ -11,6 +11,7 @@ class ShopifyService
      */
     public static function getCustomerMetafield($customerId, $namespace, $key, $shop)
     {
+		$customerId = "gid://shopify/Customer/" .  $customerId;
         $query = '
             query getCustomerMetafield($customerId: ID!, $namespace: String!, $key: String!) {
                 customer(id: $customerId) {
@@ -34,13 +35,13 @@ class ShopifyService
             $response = $shop->api()->graph($query, $variables);
             
             if (isset($response['errors'])) {
-                Log::error('GraphQL errors in getCustomerMetafield:', $response['errors']);
+                Log::error('GraphQL errors in getCustomerMetafield:', $response);
                 throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }
 
             return $response['body']['data']['customer']['metafield'] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error getting customer metafield: ' . $error->getMessage());
+            Log::error('Error getting customer metafield: ' . $error);
             throw $error;
         }
     }
@@ -50,6 +51,7 @@ class ShopifyService
      */
     public static function updateCustomerMetafield($customerId, $namespace, $key, $value, $type, $shop)
     {
+		$customerId = "gid://shopify/Customer/" .  $customerId;
         $mutation = '
             mutation updateCustomerMetafield($metafields: [MetafieldsSetInput!]!) {
                 metafieldsSet(metafields: $metafields) {
@@ -153,6 +155,7 @@ class ShopifyService
      */
     public static function getCustomerById($customerId, $shop)
     {
+		$customerId = "gid://shopify/Customer/" .  $customerId;
         $query = '
             query getCustomer($customerId: ID!) {
                 customer(id: $customerId) {

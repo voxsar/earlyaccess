@@ -16,8 +16,7 @@ use App\Http\Controllers\WishListController;
 
 Route::get('/', function () {
     return view('welcome');
-});
-
+})->middleware(['verify.shopify'])->name('home');
 /*
 |--------------------------------------------------------------------------
 | Wishlist API Routes
@@ -34,6 +33,8 @@ Route::middleware([])->prefix('api/wishlist')->group(function () {
         ->name('wishlist.add');
     
     // Remove product from wishlist  
+    Route::get('/remove', [WishListController::class, 'removeFromWishlist'])
+        ->name('wishlist.remove');
     Route::post('/remove', [WishListController::class, 'removeFromWishlist'])
         ->name('wishlist.remove');
     
