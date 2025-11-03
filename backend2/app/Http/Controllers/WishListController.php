@@ -3,15 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use App\Services\WishlistService;
-use App\Services\ShopifyService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class WishListController extends Controller
 {
-
     /**
      * Add product to wishlist
      */
@@ -21,22 +18,26 @@ class WishListController extends Controller
             $request->validate([
                 'customerId' => 'required|string',
                 'productId' => 'required|string',
-                'productHandle' => 'sometimes|string'
             ]);
+
+            Log::info($request);
 
             $customerId = $request->customerId;
             $productId = $request->productId;
 
-            // Get current shop
-            $shop = User::first();
+            $customerId = 'gid://shopify/Customer/'.$customerId;
+            $productId = 'gid://shopify/Product/'.$productId;
 
-            if (!$shop) {
+            // Get current shop
+            $shop = User::where('name', $request->shopUrl)->first();
+
+            if (! $shop) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
+                        'message' => 'Shop not authenticated',
+                    ],
                 ], 401);
             }
 
@@ -46,19 +47,19 @@ class WishListController extends Controller
                 'success' => true,
                 'data' => [
                     'itemCount' => $result['itemCount'],
-                    'wishlist' => $result['wishlist']
-                ]
+                    'wishlist' => $result['wishlist'],
+                ],
             ]);
 
         } catch (\Exception $error) {
-            Log::error('Error adding to wishlist: ' . $error->getMessage());
+            Log::error('Error adding to wishlist: '.$error->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'INTERNAL_ERROR',
-                    'message' => 'Failed to add product to wishlist'
-                ]
+                    'message' => 'Failed to add product to wishlist',
+                ],
             ], 500);
         }
     }
@@ -68,37 +69,39 @@ class WishListController extends Controller
      */
     public function removeFromWishlist(Request $request)
     {
-            $request->validate([
-                'customerId' => 'required|string',
-                'productId' => 'required|string'
-            ]);
+        $request->validate([
+            'customerId' => 'required|string',
+            'productId' => 'required|string',
+        ]);
 
-            $customerId = $request->customerId;
-            $productId = $request->productId;
+        $customerId = $request->customerId;
+        $productId = $request->productId;
 
-            // Get current shop
-            $shop = User::first();
+        $customerId = 'gid://shopify/Customer/'.$customerId;
+        $productId = 'gid://shopify/Product/'.$productId;
 
-            if (!$shop) {
-                return response()->json([
-                    'success' => false,
-                    'error' => [
-                        'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
-                ], 401);
-            }
+        // Get current shop
+        $shop = User::where('name', $request->shopUrl)->first();
 
-            $result = WishlistService::removeFromWishlist($customerId, $productId, $shop);
-
+        if (! $shop) {
             return response()->json([
-                'success' => true,
-                'data' => [
-                    'itemCount' => $result['itemCount'],
-                    'wishlist' => $result['wishlist']
-                ]
-            ]);
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                    'message' => 'Shop not authenticated',
+                ],
+            ], 401);
+        }
 
+        $result = WishlistService::removeFromWishlist($customerId, $productId, $shop);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'itemCount' => $result['itemCount'],
+                'wishlist' => $result['wishlist'],
+            ],
+        ]);
 
     }
 
@@ -108,13 +111,13 @@ class WishListController extends Controller
     public function getWishlist(Request $request, $customerId)
     {
         try {
-            if (!$customerId) {
+            if (! $customerId) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'INVALID_REQUEST',
-                        'message' => 'Customer ID is required'
-                    ]
+                        'message' => 'Customer ID is required',
+                    ],
                 ], 400);
             }
 
@@ -124,15 +127,15 @@ class WishListController extends Controller
             }
 
             // Get current shop - this should be set by the verify.shopify middleware
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
-            if (!$shop) {
+            if (! $shop) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
+                        'message' => 'Shop not authenticated',
+                    ],
                 ], 401);
             }
 
@@ -141,19 +144,19 @@ class WishListController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'items' => $wishlist
-                ]
+                    'items' => $wishlist,
+                ],
             ]);
 
         } catch (\Exception $error) {
-            Log::error('Error getting wishlist: ' . $error->getMessage());
+            Log::error('Error getting wishlist: '.$error->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'INTERNAL_ERROR',
-                    'message' => 'Failed to get wishlist'
-                ]
+                    'message' => 'Failed to get wishlist',
+                ],
             ], 500);
         }
     }
@@ -168,26 +171,26 @@ class WishListController extends Controller
             // For now, we'll expect customerId to be passed or in session
             $customerId = $request->input('customerId') ?? session('customerId');
 
-            if (!$customerId) {
+            if (! $customerId) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Customer not authenticated'
-                    ]
+                        'message' => 'Customer not authenticated',
+                    ],
                 ], 401);
             }
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
-            if (!$shop) {
+            if (! $shop) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
+                        'message' => 'Shop not authenticated',
+                    ],
                 ], 401);
             }
 
@@ -196,19 +199,19 @@ class WishListController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'items' => $wishlist
-                ]
+                    'items' => $wishlist,
+                ],
             ]);
 
         } catch (\Exception $error) {
-            Log::error('Error getting current wishlist: ' . $error->getMessage());
+            Log::error('Error getting current wishlist: '.$error->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'INTERNAL_ERROR',
-                    'message' => 'Failed to get wishlist'
-                ]
+                    'message' => 'Failed to get wishlist',
+                ],
             ], 500);
         }
     }
@@ -220,21 +223,21 @@ class WishListController extends Controller
     {
         try {
             $request->validate([
-                'customerId' => 'required|string'
+                'customerId' => 'required|string',
             ]);
 
             $customerId = $request->customerId;
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
-            if (!$shop) {
+            if (! $shop) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
+                        'message' => 'Shop not authenticated',
+                    ],
                 ], 401);
             }
 
@@ -244,19 +247,19 @@ class WishListController extends Controller
                 'success' => true,
                 'data' => [
                     'itemCount' => $result['itemCount'],
-                    'wishlist' => $result['wishlist']
-                ]
+                    'wishlist' => $result['wishlist'],
+                ],
             ]);
 
         } catch (\Exception $error) {
-            Log::error('Error clearing wishlist: ' . $error->getMessage());
+            Log::error('Error clearing wishlist: '.$error->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'INTERNAL_ERROR',
-                    'message' => 'Failed to clear wishlist'
-                ]
+                    'message' => 'Failed to clear wishlist',
+                ],
             ], 500);
         }
     }
@@ -267,26 +270,26 @@ class WishListController extends Controller
     public function getWishlistCount(Request $request, $customerId)
     {
         try {
-            if (!$customerId) {
+            if (! $customerId) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'INVALID_REQUEST',
-                        'message' => 'Customer ID is required'
-                    ]
+                        'message' => 'Customer ID is required',
+                    ],
                 ], 400);
             }
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
-            if (!$shop) {
+            if (! $shop) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
+                        'message' => 'Shop not authenticated',
+                    ],
                 ], 401);
             }
 
@@ -295,19 +298,19 @@ class WishListController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'count' => $count
-                ]
+                    'count' => $count,
+                ],
             ]);
 
         } catch (\Exception $error) {
-            Log::error('Error getting wishlist count: ' . $error->getMessage());
+            Log::error('Error getting wishlist count: '.$error->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'INTERNAL_ERROR',
-                    'message' => 'Failed to get wishlist count'
-                ]
+                    'message' => 'Failed to get wishlist count',
+                ],
             ], 500);
         }
     }
@@ -318,26 +321,26 @@ class WishListController extends Controller
     public function checkProductInWishlist(Request $request, $customerId, $productId)
     {
         try {
-            if (!$customerId || !$productId) {
+            if (! $customerId || ! $productId) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'INVALID_REQUEST',
-                        'message' => 'Customer ID and Product ID are required'
-                    ]
+                        'message' => 'Customer ID and Product ID are required',
+                    ],
                 ], 400);
             }
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
-            if (!$shop) {
+            if (! $shop) {
                 return response()->json([
                     'success' => false,
                     'error' => [
                         'code' => 'UNAUTHORIZED',
-                        'message' => 'Shop not authenticated'
-                    ]
+                        'message' => 'Shop not authenticated',
+                    ],
                 ], 401);
             }
 
@@ -346,19 +349,19 @@ class WishListController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'isInWishlist' => $isInWishlist
-                ]
+                    'isInWishlist' => $isInWishlist,
+                ],
             ]);
 
         } catch (\Exception $error) {
-            Log::error('Error checking if product is in wishlist: ' . $error->getMessage());
+            Log::error('Error checking if product is in wishlist: '.$error->getMessage());
 
             return response()->json([
                 'success' => false,
                 'error' => [
                     'code' => 'INTERNAL_ERROR',
-                    'message' => 'Failed to check wishlist status'
-                ]
+                    'message' => 'Failed to check wishlist status',
+                ],
             ], 500);
         }
     }

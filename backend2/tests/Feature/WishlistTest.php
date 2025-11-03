@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class WishlistTest extends TestCase
 {
@@ -15,13 +15,13 @@ class WishlistTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create a test shop/user
         $this->shop = User::factory()->create([
             'name' => 'Test Shop',
             'email' => 'test-shop@example.com',
             'shopify_domain' => 'test-shop.myshopify.com',
-            'shopify_token' => 'test-token'
+            'shopify_token' => 'test-token',
         ]);
     }
 
@@ -29,24 +29,24 @@ class WishlistTest extends TestCase
     {
         $response = $this->postJson('/api/wishlist/add', [
             'customerId' => 'gid://shopify/Customer/123',
-            'productId' => 'gid://shopify/Product/456'
+            'productId' => 'gid://shopify/Product/456',
         ]);
 
         $response->assertStatus(401)
-                ->assertJson([
-                    'success' => false,
-                    'error' => [
-                        'code' => 'UNAUTHORIZED'
-                    ]
-                ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                ],
+            ]);
     }
 
     public function test_add_to_wishlist_requires_customer_id()
     {
         $response = $this->actingAs($this->shop)
-                        ->postJson('/api/wishlist/add', [
-                            'productId' => 'gid://shopify/Product/456'
-                        ]);
+            ->postJson('/api/wishlist/add', [
+                'productId' => 'gid://shopify/Product/456',
+            ]);
 
         $response->assertStatus(422); // Validation error
     }
@@ -54,9 +54,9 @@ class WishlistTest extends TestCase
     public function test_add_to_wishlist_requires_product_id()
     {
         $response = $this->actingAs($this->shop)
-                        ->postJson('/api/wishlist/add', [
-                            'customerId' => 'gid://shopify/Customer/123'
-                        ]);
+            ->postJson('/api/wishlist/add', [
+                'customerId' => 'gid://shopify/Customer/123',
+            ]);
 
         $response->assertStatus(422); // Validation error
     }
@@ -64,7 +64,7 @@ class WishlistTest extends TestCase
     public function test_get_wishlist_requires_customer_id()
     {
         $response = $this->actingAs($this->shop)
-                        ->getJson('/api/wishlist/customer/');
+            ->getJson('/api/wishlist/customer/');
 
         $response->assertStatus(404); // Route not found without customer ID
     }
@@ -73,31 +73,31 @@ class WishlistTest extends TestCase
     {
         $response = $this->postJson('/api/wishlist/remove', [
             'customerId' => 'gid://shopify/Customer/123',
-            'productId' => 'gid://shopify/Product/456'
+            'productId' => 'gid://shopify/Product/456',
         ]);
 
         $response->assertStatus(401)
-                ->assertJson([
-                    'success' => false,
-                    'error' => [
-                        'code' => 'UNAUTHORIZED'
-                    ]
-                ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                ],
+            ]);
     }
 
     public function test_clear_wishlist_requires_authentication()
     {
         $response = $this->postJson('/api/wishlist/clear', [
-            'customerId' => 'gid://shopify/Customer/123'
+            'customerId' => 'gid://shopify/Customer/123',
         ]);
 
         $response->assertStatus(401)
-                ->assertJson([
-                    'success' => false,
-                    'error' => [
-                        'code' => 'UNAUTHORIZED'
-                    ]
-                ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                ],
+            ]);
     }
 
     public function test_get_wishlist_count_requires_authentication()
@@ -105,12 +105,12 @@ class WishlistTest extends TestCase
         $response = $this->getJson('/api/wishlist/customer/gid://shopify/Customer/123/count');
 
         $response->assertStatus(401)
-                ->assertJson([
-                    'success' => false,
-                    'error' => [
-                        'code' => 'UNAUTHORIZED'
-                    ]
-                ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                ],
+            ]);
     }
 
     public function test_check_product_in_wishlist_requires_authentication()
@@ -118,11 +118,11 @@ class WishlistTest extends TestCase
         $response = $this->getJson('/api/wishlist/customer/gid://shopify/Customer/123/product/gid://shopify/Product/456');
 
         $response->assertStatus(401)
-                ->assertJson([
-                    'success' => false,
-                    'error' => [
-                        'code' => 'UNAUTHORIZED'
-                    ]
-                ]);
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'code' => 'UNAUTHORIZED',
+                ],
+            ]);
     }
 }

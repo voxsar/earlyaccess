@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use Auth;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -23,9 +24,10 @@ class TestCommand extends Command
     protected $description = 'Command description';
 
     const WISHLIST_METAFIELD_NAMESPACE = 'app';
-    const WISHLIST_METAFIELD_KEY = 'wishlist';
-    const TIMESTAMPS_METAFIELD_KEY = 'wishlist_timestamps';
 
+    const WISHLIST_METAFIELD_KEY = 'wishlist';
+
+    const TIMESTAMPS_METAFIELD_KEY = 'wishlist_timestamps';
 
     /**
      * Execute the console command.
@@ -33,22 +35,22 @@ class TestCommand extends Command
     public function handle()
     {
         //
-		$shop = User::first();
+        $shop = Auth::loginUsingId(3); // User::first();
+        // 23675680456777
+        $customerId = 'gid://shopify/Customer/23675680456777';
 
-		//23675680456777
-		$customerId = "gid://shopify/Customer/23675680456777";
-
-		$this->getCustomerMetafield(
-			$customerId,
-			self::WISHLIST_METAFIELD_NAMESPACE,
-			self::WISHLIST_METAFIELD_KEY,
-			$shop
-		);
+        $this->info('Getting metafield for customerId: '.$customerId);
+        $this->getCustomerMetafield(
+            $customerId,
+            self::WISHLIST_METAFIELD_NAMESPACE,
+            self::WISHLIST_METAFIELD_KEY,
+            $shop
+        );
     }
 
-	public static function getCustomerMetafield($customerId, $namespace, $key, $shop)
+    public static function getCustomerMetafield($customerId, $namespace, $key, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+        $customerId = $customerId;
         $query = '
             query getCustomerMetafield($customerId: ID!, $namespace: String!, $key: String!) {
                 customer(id: $customerId) {
@@ -61,24 +63,25 @@ class TestCommand extends Command
                 }
             }
         ';
+        Log::info($query);
 
         $variables = [
             'customerId' => $customerId,
             'namespace' => $namespace,
-            'key' => $key
+            'key' => $key,
         ];
 
         try {
             $response = $shop->api()->graph($query, $variables);
-            
-            if (isset($response['errors'])) {
+
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomerMetafield:', $response);
-                throw new \Exception('GraphQL query failed: ' . json_encode($response));
+                throw new \Exception('GraphQL query failed: '.json_encode($response));
             }
 
             return $response['body']['data']['customer']['metafield'] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error getting customer metafield: ' . $error);
+            Log::error('Error getting customer metafield: '.$error);
             throw $error;
         }
     }

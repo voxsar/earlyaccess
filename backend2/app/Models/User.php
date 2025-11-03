@@ -13,7 +13,7 @@ use Osiset\ShopifyApp\Traits\ShopModel;
 class User extends Authenticatable implements IShopModel
 {
     use HasApiTokens, HasFactory, Notifiable;
-	use ShopModel;
+    use ShopModel;
 
     /**
      * The attributes that are mass assignable.
@@ -43,6 +43,6 @@ class User extends Authenticatable implements IShopModel
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        //'password' => 'hashed',
+        // 'password' => 'hashed',
     ];
 }

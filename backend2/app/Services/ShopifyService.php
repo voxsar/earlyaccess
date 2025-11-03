@@ -11,37 +11,42 @@ class ShopifyService
      */
     public static function getCustomerMetafield($customerId, $namespace, $key, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+        $customerId = $customerId;
         $query = '
-            query getCustomerMetafield($customerId: ID!, $namespace: String!, $key: String!) {
-                customer(id: $customerId) {
-                    id
-                    metafield(namespace: $namespace, key: $key) {
-                        id
-                        value
-                        type
-                    }
-                }
-            }
+            query CustomerMetafields($ownerId: ID!) {
+				customer(id: $ownerId) {
+					metafields(first: 3) {
+					edges {
+						node {
+						namespace
+						key
+						value
+						}
+					}
+					}
+				}
+			}
         ';
 
+        Log::info($query);
+
         $variables = [
-            'customerId' => $customerId,
-            'namespace' => $namespace,
-            'key' => $key
+            'ownerId' => $customerId,
         ];
+
+        Log::info($variables);
 
         try {
             $response = $shop->api()->graph($query, $variables);
-            
-            if (isset($response['errors'])) {
+            Log::info('GraphQL response in getCustomerMetafield:', $response);
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomerMetafield:', $response);
-                throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
+                // throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
             }
 
             return $response['body']['data']['customer']['metafield'] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error getting customer metafield: ' . $error);
+            Log::error('Error getting customer metafield: '.$error);
             throw $error;
         }
     }
@@ -51,7 +56,7 @@ class ShopifyService
      */
     public static function updateCustomerMetafield($customerId, $namespace, $key, $value, $type, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+        $customerId = $customerId;
         $mutation = '
             mutation updateCustomerMetafield($metafields: [MetafieldsSetInput!]!) {
                 metafieldsSet(metafields: $metafields) {
@@ -69,6 +74,8 @@ class ShopifyService
             }
         ';
 
+        Log::info($mutation);
+
         $variables = [
             'metafields' => [
                 [
@@ -76,27 +83,24 @@ class ShopifyService
                     'namespace' => $namespace,
                     'key' => $key,
                     'value' => $value,
-                    'type' => $type
-                ]
-            ]
+                    'type' => $type,
+                ],
+            ],
         ];
 
         try {
             $response = $shop->api()->graph($mutation, $variables);
-            
-            if (isset($response['errors'])) {
-                Log::error('GraphQL errors in updateCustomerMetafield:', $response['errors']);
-                throw new \Exception('GraphQL mutation failed: ' . json_encode($response['errors']));
+
+            if (isset($response['errors']) && $response['errors'] != false) {
+                Log::error('GraphQL errors in updateCustomerMetafield:', $response);
+                throw new \Exception('GraphQL mutation failed: '.json_encode($response['errors']));
             }
 
             $errors = $response['body']['data']['metafieldsSet']['userErrors'] ?? [];
-            if (!empty($errors)) {
-                throw new \Exception("Metafield update failed: {$errors[0]['message']}");
-            }
 
-            return $response['body']['data']['metafieldsSet']['metafields'][0] ?? null;
+            return $response['body']['data']['metafieldsSet']['metafields'] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error updating customer metafield: ' . $error->getMessage());
+            Log::error('Error updating customer metafield: '.$error->getMessage());
             throw $error;
         }
     }
@@ -124,7 +128,6 @@ class ShopifyService
                             url
                             altText
                         }
-                        availableForSale
                         totalInventory
                     }
                 }
@@ -132,20 +135,20 @@ class ShopifyService
         ';
 
         $variables = [
-            'ids' => $productIds
+            'ids' => $productIds,
         ];
 
         try {
             $response = $shop->api()->graph($query, $variables);
-            
-            if (isset($response['errors'])) {
+
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getProductsByIds:', $response['errors']);
-                throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
+                throw new \Exception('GraphQL query failed: '.json_encode($response['errors']));
             }
 
             return $response['body']['data']['nodes'] ?? [];
         } catch (\Exception $error) {
-            Log::error('Error getting products: ' . $error->getMessage());
+            Log::error('Error getting products: '.$error->getMessage());
             throw $error;
         }
     }
@@ -155,33 +158,34 @@ class ShopifyService
      */
     public static function getCustomerById($customerId, $shop)
     {
-		$customerId = "gid://shopify/Customer/" .  $customerId;
+        $customerId = $customerId;
         $query = '
-            query getCustomer($customerId: ID!) {
+            query GetCustomerById($customerId: ID!) {
                 customer(id: $customerId) {
                     id
-                    email
-                    firstName
-                    lastName
-                }
-            }
-        ';
+					email
+					firstName
+					lastName
+            	}
+			}
+		';
 
         $variables = [
-            'customerId' => $customerId
+            'customerId' => $customerId,
         ];
 
         try {
             $response = $shop->api()->graph($query, $variables);
-            
-            if (isset($response['errors'])) {
+            Log::info('GraphQL response in getCustomerById:');
+            Log::info($response);
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomerById:', $response['errors']);
-                throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
+                throw new \Exception('GraphQL query failed: '.json_encode($response['errors']));
             }
 
             return $response['body']['data']['customer'] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error getting customer: ' . $error->getMessage());
+            Log::error('Error getting customer: '.$error->getMessage());
             throw $error;
         }
     }
@@ -189,7 +193,7 @@ class ShopifyService
     /**
      * Search products using GraphQL (additional utility method)
      */
-    public static function searchProducts($query, $limit = 10, $shop)
+    public static function searchProducts($query, $limit, $shop)
     {
         $graphqlQuery = '
             query searchProducts($query: String!, $first: Int!) {
@@ -210,7 +214,6 @@ class ShopifyService
                                 url
                                 altText
                             }
-                            availableForSale
                             totalInventory
                         }
                     }
@@ -220,23 +223,24 @@ class ShopifyService
 
         $variables = [
             'query' => $query,
-            'first' => $limit
+            'first' => $limit,
         ];
 
         try {
             $response = $shop->api()->graph($graphqlQuery, $variables);
-            
-            if (isset($response['errors'])) {
+
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in searchProducts:', $response['errors']);
-                throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
+                throw new \Exception('GraphQL query failed: '.json_encode($response['errors']));
             }
 
             $edges = $response['body']['data']['products']['edges'] ?? [];
-            return array_map(function($edge) {
+
+            return array_map(function ($edge) {
                 return $edge['node'];
             }, $edges);
         } catch (\Exception $error) {
-            Log::error('Error searching products: ' . $error->getMessage());
+            Log::error('Error searching products: '.$error->getMessage());
             throw $error;
         }
     }
@@ -244,10 +248,10 @@ class ShopifyService
     /**
      * Get all customers (with pagination support)
      */
-    public static function getCustomers($limit = 50, $cursor = null, $shop)
+    public static function getCustomers($limit, $cursor, $shop)
     {
         $after = $cursor ? ", after: \"$cursor\"" : '';
-        
+
         $query = "
             query getCustomers {
                 customers(first: $limit$after) {
@@ -274,15 +278,15 @@ class ShopifyService
 
         try {
             $response = $shop->api()->graph($query);
-            
-            if (isset($response['errors'])) {
+
+            if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in getCustomers:', $response['errors']);
-                throw new \Exception('GraphQL query failed: ' . json_encode($response['errors']));
+                throw new \Exception('GraphQL query failed: '.json_encode($response['errors']));
             }
 
             return $response['body']['data']['customers'] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error getting customers: ' . $error->getMessage());
+            Log::error('Error getting customers: '.$error->getMessage());
             throw $error;
         }
     }

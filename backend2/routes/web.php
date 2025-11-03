@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishListController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,6 +19,32 @@ use App\Http\Controllers\WishListController;
 Route::get('/', function () {
     return view('welcome');
 })->middleware(['verify.shopify'])->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| Admin Dashboard Routes
+|--------------------------------------------------------------------------
+|
+| These routes are for the admin dashboard to view customers and products
+| in the wishlist system. They require shop authentication.
+|
+*/
+
+Route::middleware(['verify.shopify'])->group(function () {
+    // Customers with wishlists
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+
+    // Individual customer's wishlist
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+
+    // All wishlisted products
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+    // AJAX API endpoints
+    Route::get('/api/customers-data', [CustomerController::class, 'getCustomersData'])->name('api.customers');
+    Route::get('/api/products-data', [ProductController::class, 'getProductsData'])->name('api.products');
+    Route::get('/api/customer-wishlist/{customerId}', [CustomerController::class, 'getCustomerWishlist'])->name('api.customer.wishlist');
+});
 /*
 |--------------------------------------------------------------------------
 | Wishlist API Routes
@@ -27,7 +55,7 @@ Route::get('/', function () {
 |
 */
 
-Route::middleware(['verify.shopify'])->prefix('api/wishlist')->group(function () {
+Route::middleware([])->prefix('api/wishlist')->group(function () {
     // Add product to wishlist
     Route::post('/add', [WishListController::class, 'addToWishlist'])
         ->name('wishlist.add');
