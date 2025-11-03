@@ -79,4 +79,4 @@ If issues persist, check the commit history and review individual changes.
 
 ## Need Help?
 
-See `OPTIMIZATION_NOTES.md` for detailed information about all changes and maintenance guidelines.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for architecture details and [TESTING_GUIDE.md](./TESTING_GUIDE.md) for testing guidelines.

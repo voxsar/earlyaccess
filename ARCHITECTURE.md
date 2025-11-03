@@ -514,13 +514,14 @@ earlyaccess/
 ├── package.json                   # Root dependencies
 │
 └── Documentation/
-    ├── README.md                  # Main docs
-    ├── SETUP.md                   # Setup guide
+    ├── README.md                  # Main docs with setup
     ├── API.md                     # API reference
-    ├── QUICKSTART.md              # Quick start
+    ├── ARCHITECTURE.md            # This file!
+    ├── TESTING_GUIDE.md           # Testing guide
+    ├── DEPLOYMENT.md              # Deployment guide
     ├── CHANGELOG.md               # Version history
     ├── CONTRIBUTING.md            # Contribution guide
-    └── ARCHITECTURE.md            # This file!
+    └── BUNDLE_SIZE_VERIFICATION.md # Bundle optimization
 ```
 
 ## Technology Stack Diagram
