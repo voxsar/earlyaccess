@@ -13,7 +13,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ## Development Setup
 
-See [SETUP.md](./SETUP.md) for detailed setup instructions.
+See [README.md](./README.md#installation) for detailed setup instructions.
 
 ## Code Style
 

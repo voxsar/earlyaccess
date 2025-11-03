@@ -63,9 +63,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Webhook configuration structure
 
 #### Documentation
-- Comprehensive README.md with features and architecture
-- Detailed SETUP.md guide for developers and merchants
+- Comprehensive README.md with features, architecture, and setup
+- Detailed ARCHITECTURE.md for system design
 - API.md with complete API documentation
+- TESTING_GUIDE.md for comprehensive testing
+- DEPLOYMENT.md for production deployment
 - CONTRIBUTING.md with contribution guidelines
 - LICENSE file (MIT License)
 - CHANGELOG.md for version tracking
