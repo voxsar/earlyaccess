@@ -322,7 +322,6 @@ return [
 
     'billing_redirect' => env('SHOPIFY_BILLING_REDIRECT', '/billing/process'),
 
-
     /*
     |--------------------------------------------------------------------------
     | Enable legacy support for features
@@ -385,7 +384,7 @@ return [
     */
 
     'webhooks' => [
-        /*
+    /*
             [
                 'topic' => env('SHOPIFY_WEBHOOK_1_TOPIC', 'ORDERS_CREATE'),
                 'address' => env('SHOPIFY_WEBHOOK_1_ADDRESS', 'https://example.com/webhook/orders-create')
@@ -412,7 +411,7 @@ return [
     */
 
     'scripttags' => [
-        /*
+    /*
             [
                 'src' => env('SHOPIFY_SCRIPTTAG_1_SRC', 'https://example.com/some-controller/js-method-response'),
                 'event' => env('SHOPIFY_SCRIPTTAG_1_EVENT', 'onload'),
@@ -438,7 +437,7 @@ return [
      * @see
      */
     'after_authenticate_job' => [
-        /*
+    /*
             [
                 'job' => env('AFTER_AUTHENTICATE_JOB'), // example: \App\Jobs\AfterAuthorizeJob::class
                 'inline' => env('AFTER_AUTHENTICATE_JOB_INLINE', false) // False = dispatch job for later, true = dispatch immediately
@@ -598,5 +597,5 @@ return [
     */
     'forbidden_web_middleware_groups' => [
         'api',
-    ]
+    ],
 ];

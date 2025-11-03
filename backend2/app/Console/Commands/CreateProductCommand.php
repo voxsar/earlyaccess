@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Auth;
 use App\Models\User;
+use Auth;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -24,7 +24,9 @@ class CreateProductCommand extends Command
     protected $description = 'Command description';
 
     const WISHLIST_METAFIELD_NAMESPACE = 'app';
+
     const WISHLIST_METAFIELD_KEY = 'wishlist';
+
     const TIMESTAMPS_METAFIELD_KEY = 'wishlist_timestamps';
 
     /**
@@ -33,25 +35,25 @@ class CreateProductCommand extends Command
     public function handle()
     {
         //
-		$shop = Auth::loginUsingId(3);//User::first();
-		//23675680456777
-		$customerId = "gid://shopify/Customer/23675680456777";
+        $shop = Auth::loginUsingId(3); // User::first();
+        // 23675680456777
+        $customerId = 'gid://shopify/Customer/23675680456777';
 
-		$this->info("Getting metafield for customerId: " . $customerId );
+        $this->info('Getting metafield for customerId: '.$customerId);
 
-		$this->updateCustomerMetafield(
-			$customerId,
-			self::WISHLIST_METAFIELD_NAMESPACE,
-			self::WISHLIST_METAFIELD_KEY,
-			json_encode(["gid://shopify/Product/15410982256713"]),
-			"list.product_reference",
-			$shop
-		);
+        $this->updateCustomerMetafield(
+            $customerId,
+            self::WISHLIST_METAFIELD_NAMESPACE,
+            self::WISHLIST_METAFIELD_KEY,
+            json_encode(['gid://shopify/Product/15410982256713']),
+            'list.product_reference',
+            $shop
+        );
     }
 
-	public static function updateCustomerMetafield($customerId, $namespace, $key, $value, $type, $shop)
+    public static function updateCustomerMetafield($customerId, $namespace, $key, $value, $type, $shop)
     {
-		$customerId = $customerId;
+        $customerId = $customerId;
         $mutation = '
             mutation updateCustomerMetafield($metafields: [MetafieldsSetInput!]!) {
                 metafieldsSet(metafields: $metafields) {
@@ -76,27 +78,27 @@ class CreateProductCommand extends Command
                     'namespace' => $namespace,
                     'key' => $key,
                     'value' => $value,
-                    'type' => $type
-                ]
-            ]
+                    'type' => $type,
+                ],
+            ],
         ];
 
         try {
             $response = $shop->api()->graph($mutation, $variables);
-            
+
             if (isset($response['errors']) && $response['errors'] != false) {
                 Log::error('GraphQL errors in updateCustomerMetafield:', $response);
-                throw new \Exception('GraphQL mutation failed: ' . json_encode($response));
+                throw new \Exception('GraphQL mutation failed: '.json_encode($response));
             }
 
             $errors = $response['body']['data']['metafieldsSet']['userErrors'] ?? [];
-            if (!empty($errors)) {
+            if (! empty($errors)) {
                 throw new \Exception("Metafield update failed: {$errors[0]['message']}");
             }
 
             return $response['body']['data']['metafieldsSet']['metafields'][0] ?? null;
         } catch (\Exception $error) {
-            Log::error('Error updating customer metafield: ' . $error->getMessage());
+            Log::error('Error updating customer metafield: '.$error->getMessage());
             throw $error;
         }
     }

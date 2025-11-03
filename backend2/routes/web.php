@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WishListController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\WishListController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,10 +33,10 @@ Route::get('/', function () {
 Route::middleware(['verify.shopify'])->group(function () {
     // Customers with wishlists
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-    
+
     // Individual customer's wishlist
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
-    
+
     // All wishlisted products
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 

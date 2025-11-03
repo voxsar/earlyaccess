@@ -39,7 +39,7 @@ class CustomerController extends Controller
 
         return response()->json([
             'customers' => $customers,
-            'shopDomain' => $shopDomain
+            'shopDomain' => $shopDomain,
         ]);
     }
 
@@ -80,13 +80,13 @@ class CustomerController extends Controller
     public function getCustomerWishlist($customerId)
     {
         $customer = Customer::with('wishlists')->findOrFail($customerId);
-        
+
         $shop = User::first();
         $shopDomain = $shop ? $shop->name : 'your-shop';
 
         return response()->json([
             'customer' => $customer,
-            'shopDomain' => $shopDomain
+            'shopDomain' => $shopDomain,
         ]);
     }
 

@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-			//name
-			$table->string('name')->nullable();
-			//email
-			$table->string('email')->unique();
-			//shopify_customer_id
-			$table->bigInteger('shopify_customer_id')->unique();
-			//number of wishlist items
-			$table->integer('wishlist_count')->default(0);
+            // name
+            $table->string('name')->nullable();
+            // email
+            $table->string('email')->unique();
+            // shopify_customer_id
+            $table->bigInteger('shopify_customer_id')->unique();
+            // number of wishlist items
+            $table->integer('wishlist_count')->default(0);
             $table->timestamps();
         });
     }

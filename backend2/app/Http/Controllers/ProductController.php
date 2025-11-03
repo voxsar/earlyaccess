@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Wishlist;
 use App\Models\User;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -44,7 +43,7 @@ class ProductController extends Controller
 
         return response()->json([
             'products' => $products,
-            'shopDomain' => $shopDomain
+            'shopDomain' => $shopDomain,
         ]);
     }
 

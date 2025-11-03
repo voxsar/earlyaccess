@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('wishlists', function (Blueprint $table) {
             $table->id();
-			//product name
-			$table->string('product_name')->nullable();
-			$table->string('product_shopify_id')->nullable();
-			$table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
+            // product name
+            $table->string('product_name')->nullable();
+            $table->string('product_shopify_id')->nullable();
+            $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
             $table->timestamps();
         });
     }

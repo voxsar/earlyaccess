@@ -9,12 +9,12 @@ class Customer extends Model
 {
     use HasFactory;
 
-	protected $fillable = [
-		'name',
-		'email',
-		'shopify_customer_id',
-		'wishlist_count',
-	];
+    protected $fillable = [
+        'name',
+        'email',
+        'shopify_customer_id',
+        'wishlist_count',
+    ];
 
     /**
      * Get the wishlist items for the customer

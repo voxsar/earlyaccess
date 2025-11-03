@@ -2,15 +2,17 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use App\Models\Customer;
 use App\Models\Wishlist;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class WishlistService
 {
     const WISHLIST_METAFIELD_NAMESPACE = 'app';
+
     const WISHLIST_METAFIELD_KEY = 'wishlist';
+
     const TIMESTAMPS_METAFIELD_KEY = 'wishlist_timestamps';
 
     /**
@@ -27,7 +29,7 @@ class WishlistService
             if (in_array($productId, $currentWishlist)) {
                 return [
                     'itemCount' => count($currentWishlist),
-                    'wishlist' => $currentWishlist
+                    'wishlist' => $currentWishlist,
                 ];
             }
 
@@ -52,11 +54,11 @@ class WishlistService
 
             return [
                 'itemCount' => count($updatedWishlist),
-                'wishlist' => $updatedWishlist
+                'wishlist' => $updatedWishlist,
             ];
 
         } catch (\Exception $error) {
-            Log::error('Error adding to wishlist: ' . $error->getMessage());
+            Log::error('Error adding to wishlist: '.$error->getMessage());
             throw new \Exception('Failed to add product to wishlist');
         }
     }
@@ -67,12 +69,12 @@ class WishlistService
     public static function removeFromWishlist($customerId, $productId, $shop)
     {
         try {
-            Log::info("Removing productId: " . $productId . " from customerId: " . $customerId );
+            Log::info('Removing productId: '.$productId.' from customerId: '.$customerId);
             // Get current wishlist
             $currentWishlist = self::getCustomerWishlist($customerId, $shop);
-            Log::info("Current Wishlist: " . json_encode($currentWishlist));
+            Log::info('Current Wishlist: '.json_encode($currentWishlist));
             // Remove product from wishlist
-            $updatedWishlist = array_values(array_filter($currentWishlist, function($id) use ($productId) {
+            $updatedWishlist = array_values(array_filter($currentWishlist, function ($id) use ($productId) {
                 return $id !== $productId;
             }));
 
@@ -94,11 +96,11 @@ class WishlistService
 
             return [
                 'itemCount' => count($updatedWishlist),
-                'wishlist' => $updatedWishlist
+                'wishlist' => $updatedWishlist,
             ];
 
         } catch (\Exception $error) {
-            Log::error('Error removing from wishlist: ' . $error->getMessage());
+            Log::error('Error removing from wishlist: '.$error->getMessage());
             throw new \Exception('Failed to remove product from wishlist');
         }
     }
@@ -116,13 +118,14 @@ class WishlistService
                 $shop
             );
 
-            if (!$metafield || !isset($metafield['value'])) {
+            if (! $metafield || ! isset($metafield['value'])) {
                 return [];
             }
 
             return json_decode($metafield['value'], true) ?: [];
         } catch (\Exception $error) {
-            Log::error('Error getting wishlist: ' . $error->getMessage());
+            Log::error('Error getting wishlist: '.$error->getMessage());
+
             return [];
         }
     }
@@ -157,13 +160,13 @@ class WishlistService
                     'currency' => $product['priceRange']['minVariantPrice']['currencyCode'] ?? null,
                     'imageUrl' => $product['featuredImage']['url'] ?? null,
                     'url' => $product['onlineStoreUrl'] ?? "/products/{$product['handle']}",
-                    'addedAt' => $timestamps[$product['id']] ?? null
+                    'addedAt' => $timestamps[$product['id']] ?? null,
                 ];
             }
 
             return $wishlistItems;
         } catch (\Exception $error) {
-            Log::error('Error getting wishlist with products: ' . $error->getMessage());
+            Log::error('Error getting wishlist with products: '.$error->getMessage());
             throw new \Exception('Failed to get wishlist');
         }
     }
@@ -191,7 +194,7 @@ class WishlistService
                 $shop
             );
         } catch (\Exception $error) {
-            Log::error('Error updating timestamps: ' . $error->getMessage());
+            Log::error('Error updating timestamps: '.$error->getMessage());
             // Don't throw error for timestamps, it's not critical
         }
     }
@@ -209,13 +212,14 @@ class WishlistService
                 $shop
             );
 
-            if (!$metafield || !isset($metafield['value'])) {
+            if (! $metafield || ! isset($metafield['value'])) {
                 return [];
             }
 
             return json_decode($metafield['value'], true) ?: [];
         } catch (\Exception $error) {
-            Log::error('Error getting timestamps: ' . $error->getMessage());
+            Log::error('Error getting timestamps: '.$error->getMessage());
+
             return [];
         }
     }
@@ -249,7 +253,7 @@ class WishlistService
             // Update local database - clear all wishlist items for this customer
             $numericCustomerId = str_replace('gid://shopify/Customer/', '', $customerId);
             $customer = Customer::where('shopify_customer_id', $numericCustomerId)->first();
-            
+
             if ($customer) {
                 Wishlist::where('customer_id', $customer->id)->delete();
                 $customer->update(['wishlist_count' => 0]);
@@ -257,11 +261,11 @@ class WishlistService
 
             return [
                 'itemCount' => 0,
-                'wishlist' => []
+                'wishlist' => [],
             ];
 
         } catch (\Exception $error) {
-            Log::error('Error clearing wishlist: ' . $error->getMessage());
+            Log::error('Error clearing wishlist: '.$error->getMessage());
             throw new \Exception('Failed to clear wishlist');
         }
     }
@@ -273,9 +277,11 @@ class WishlistService
     {
         try {
             $wishlist = self::getCustomerWishlist($customerId, $shop);
+
             return count($wishlist);
         } catch (\Exception $error) {
-            Log::error('Error getting wishlist count: ' . $error->getMessage());
+            Log::error('Error getting wishlist count: '.$error->getMessage());
+
             return 0;
         }
     }
@@ -287,9 +293,11 @@ class WishlistService
     {
         try {
             $wishlist = self::getCustomerWishlist($customerId, $shop);
+
             return in_array($productId, $wishlist);
         } catch (\Exception $error) {
-            Log::error('Error checking if product is in wishlist: ' . $error->getMessage());
+            Log::error('Error checking if product is in wishlist: '.$error->getMessage());
+
             return false;
         }
     }
@@ -321,11 +329,11 @@ class WishlistService
 
             return [
                 'itemCount' => count($mergedWishlist),
-                'wishlist' => $mergedWishlist
+                'wishlist' => $mergedWishlist,
             ];
 
         } catch (\Exception $error) {
-            Log::error('Error merging wishlists: ' . $error->getMessage());
+            Log::error('Error merging wishlists: '.$error->getMessage());
             throw new \Exception('Failed to merge wishlists');
         }
     }
@@ -344,8 +352,9 @@ class WishlistService
             $customer = self::getOrCreateCustomer($customerId, $shop);
 
             // Check if customer was successfully retrieved/created
-            if (!$customer) {
-                Log::error('Failed to get or create customer for ID: ' . $customerId);
+            if (! $customer) {
+                Log::error('Failed to get or create customer for ID: '.$customerId);
+
                 return; // Exit early if customer is null
             }
 
@@ -359,12 +368,12 @@ class WishlistService
                     ->where('product_shopify_id', $numericProductId)
                     ->first();
 
-                if (!$existingWishlistItem) {
+                if (! $existingWishlistItem) {
                     // Create new wishlist item
                     Wishlist::create([
                         'product_name' => $productTitle,
                         'product_shopify_id' => $numericProductId,
-                        'customer_id' => $customer->id
+                        'customer_id' => $customer->id,
                     ]);
 
                     // Update customer wishlist count
@@ -383,7 +392,7 @@ class WishlistService
             }
 
         } catch (\Exception $error) {
-            Log::error('Error updating local database: ' . $error);
+            Log::error('Error updating local database: '.$error);
             // Don't throw error for database updates, it's not critical for the main functionality
         }
     }
@@ -399,26 +408,27 @@ class WishlistService
             // Check if customer exists in local database
             $customer = Customer::where('shopify_customer_id', $numericCustomerId)->first();
 
-            if (!$customer) {
+            if (! $customer) {
                 // Get customer details from Shopify
                 $shopifyCustomer = ShopifyService::getCustomerById($customerId, $shop);
 
                 if ($shopifyCustomer) {
                     // Create new customer record
                     $customer = Customer::create([
-                        'name' => trim($shopifyCustomer['firstName'] . ' ' . $shopifyCustomer['lastName']),
+                        'name' => trim($shopifyCustomer['firstName'].' '.$shopifyCustomer['lastName']),
                         'email' => $shopifyCustomer['email'],
                         'shopify_customer_id' => $numericCustomerId,
-                        'wishlist_count' => 0
+                        'wishlist_count' => 0,
                     ]);
                 } else {
-                    Log::error('Could not retrieve customer details from Shopify for customer ID: ' . $customerId);
+                    Log::error('Could not retrieve customer details from Shopify for customer ID: '.$customerId);
                 }
             }
 
             return $customer;
         } catch (\Exception $error) {
-            Log::error('Error getting or creating customer: ' . $error->getMessage());
+            Log::error('Error getting or creating customer: '.$error->getMessage());
+
             return null; // Return null instead of throwing to let calling method handle it
         }
     }
