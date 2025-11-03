@@ -25,6 +25,14 @@ class Customer extends Model
     }
 
     /**
+     * Get the wishlist activities for the customer
+     */
+    public function activities()
+    {
+        return $this->hasMany(WishlistActivity::class);
+    }
+
+    /**
      * Get the Shopify admin URL for this customer
      */
     public function getShopifyUrlAttribute()
