@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Customer;
 use App\Models\Wishlist;
+use App\Models\WishlistActivity;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -378,8 +379,20 @@ class WishlistService
 
                     // Update customer wishlist count
                     $customer->increment('wishlist_count');
+                    
+                    // Track activity - determine if this is a new wishlist creation
+                    $activityType = $customer->wishlist_count == 1 ? 'create_new' : 'add';
+                    
+                    self::trackActivity($customer->id, $numericProductId, $productTitle, $activityType);
                 }
             } elseif ($action === 'remove') {
+                // Get product name before removing
+                $wishlistItem = Wishlist::where('customer_id', $customer->id)
+                    ->where('product_shopify_id', $numericProductId)
+                    ->first();
+                
+                $productTitle = $wishlistItem ? $wishlistItem->product_name : 'Unknown Product';
+                
                 // Remove wishlist item
                 $removedCount = Wishlist::where('customer_id', $customer->id)
                     ->where('product_shopify_id', $numericProductId)
@@ -388,6 +401,9 @@ class WishlistService
                 if ($removedCount > 0) {
                     // Update customer wishlist count
                     $customer->decrement('wishlist_count');
+                    
+                    // Track activity
+                    self::trackActivity($customer->id, $numericProductId, $productTitle, 'remove');
                 }
             }
 
@@ -430,6 +446,24 @@ class WishlistService
             Log::error('Error getting or creating customer: '.$error->getMessage());
 
             return null; // Return null instead of throwing to let calling method handle it
+        }
+    }
+
+    /**
+     * Track wishlist activity
+     */
+    private static function trackActivity($customerId, $productShopifyId, $productName, $activityType)
+    {
+        try {
+            WishlistActivity::create([
+                'customer_id' => $customerId,
+                'product_shopify_id' => $productShopifyId,
+                'product_name' => $productName,
+                'activity_type' => $activityType,
+            ]);
+        } catch (\Exception $error) {
+            Log::error('Error tracking activity: '.$error->getMessage());
+            // Don't throw - activity tracking is not critical
         }
     }
 }

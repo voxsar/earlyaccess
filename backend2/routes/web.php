@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\WishListController;
@@ -31,6 +32,16 @@ Route::get('/', function () {
 */
 
 Route::middleware(['verify.shopify'])->group(function () {
+    // Dashboard home
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    
+    // Dashboard analytics API endpoints
+    Route::get('/api/dashboard/insights', [AdminDashboardController::class, 'getInsights'])->name('api.dashboard.insights');
+    Route::get('/api/dashboard/top-products', [AdminDashboardController::class, 'getTopProducts'])->name('api.dashboard.top-products');
+    Route::get('/api/dashboard/top-customers', [AdminDashboardController::class, 'getTopCustomers'])->name('api.dashboard.top-customers');
+    Route::get('/api/dashboard/activity-stats', [AdminDashboardController::class, 'getActivityStats'])->name('api.dashboard.activity-stats');
+    Route::get('/api/dashboard/recent-activities', [AdminDashboardController::class, 'getRecentActivities'])->name('api.dashboard.recent-activities');
+    
     // Customers with wishlists
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
 
