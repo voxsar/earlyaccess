@@ -379,10 +379,10 @@ class WishlistService
 
                     // Update customer wishlist count
                     $customer->increment('wishlist_count');
-                    
+
                     // Track activity - determine if this is a new wishlist creation
                     $activityType = $customer->wishlist_count == 1 ? 'create_new' : 'add';
-                    
+
                     self::trackActivity($customer->id, $numericProductId, $productTitle, $activityType);
                 }
             } elseif ($action === 'remove') {
@@ -390,9 +390,9 @@ class WishlistService
                 $wishlistItem = Wishlist::where('customer_id', $customer->id)
                     ->where('product_shopify_id', $numericProductId)
                     ->first();
-                
+
                 $productTitle = $wishlistItem ? $wishlistItem->product_name : 'Unknown Product';
-                
+
                 // Remove wishlist item
                 $removedCount = Wishlist::where('customer_id', $customer->id)
                     ->where('product_shopify_id', $numericProductId)
@@ -401,7 +401,7 @@ class WishlistService
                 if ($removedCount > 0) {
                     // Update customer wishlist count
                     $customer->decrement('wishlist_count');
-                    
+
                     // Track activity
                     self::trackActivity($customer->id, $numericProductId, $productTitle, 'remove');
                 }

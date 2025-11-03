@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\User;
 use App\Models\Wishlist;
 use App\Models\WishlistActivity;
@@ -173,7 +172,7 @@ class AdminDashboardController extends Controller
         // Group by date for easier frontend processing
         $groupedStats = [];
         foreach ($stats as $stat) {
-            if (!isset($groupedStats[$stat->date])) {
+            if (! isset($groupedStats[$stat->date])) {
                 $groupedStats[$stat->date] = [
                     'date' => $stat->date,
                     'add' => 0,
