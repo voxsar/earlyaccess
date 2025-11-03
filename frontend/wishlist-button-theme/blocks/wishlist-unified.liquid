@@ -1,0 +1,327 @@
+{% comment %}
+  Unified Wishlist Component - Theme App Block
+  Can function as both regular button and floating button
+  Configurable behavior and positioning
+{% endcomment %}
+
+{{ 'wishlist-unified.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'wishlist-unified.js' | asset_url }}" defer></script>
+
+{% if customer %}
+  {% if block.settings.display_mode == 'floating' %}
+    <!-- Floating Mode -->
+    <div
+      class="wishlist-unified-container wishlist-unified--floating"
+      data-wishlist-unified
+      data-customer-id="{{ customer.id }}"
+      data-display-mode="floating"
+      style="
+        	    position: fixed;
+        --floating-position-side: {{ block.settings.position_side }};
+        --floating-position-vertical: {{ block.settings.position_vertical }};
+        --floating-offset-horizontal: {{ block.settings.offset_horizontal }}px;
+        --floating-offset-vertical: {{ block.settings.offset_vertical }}px;
+        --button-bg-color: {{ block.settings.button_bg_color }};
+        --button-text-color: {{ block.settings.button_text_color }};
+        --button-hover-bg-color: {{ block.settings.button_hover_bg_color }};
+      "
+    >
+      <!-- Floating Button -->
+      <button
+        type="button"
+        style="position: fixed;"
+        class="wishlist-unified-button wishlist-unified-button--floating"
+        data-wishlist-btn
+        aria-label="View my wishlist"
+        title="My Wishlist"
+      >
+        <span class="wishlist-unified-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                  fill="currentColor"
+            />
+          </svg>
+        </span>
+        <span class="wishlist-unified-text">{{ block.settings.floating_button_text }}</span>
+        <span class="wishlist-count-badge" data-wishlist-count>0</span>
+      </button>
+
+      <!-- Wishlist Popup -->
+      <div class="wishlist-popup" data-wishlist-popup>
+        <div class="wishlist-popup-header">
+          <h3>My Wishlist</h3>
+          <button
+            type="button"
+            class="wishlist-popup-close"
+            data-wishlist-close
+            aria-label="Close wishlist"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="wishlist-popup-content">
+          <!-- Loading state -->
+          <div class="wishlist-loading" data-wishlist-loading>
+            <div class="wishlist-spinner"></div>
+            <p>Loading your wishlist...</p>
+          </div>
+
+          <!-- Empty state -->
+          <div class="wishlist-empty" data-wishlist-empty style="display: none;">
+            <div class="wishlist-empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      fill="none"
+                />
+              </svg>
+            </div>
+            <h4>Your wishlist is empty</h4>
+            <p>Start adding products you love!</p>
+          </div>
+
+          <!-- Wishlist items -->
+          <div class="wishlist-items" data-wishlist-items>
+            <!-- Items will be dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Bottom actions -->
+        <div class="wishlist-popup-footer" data-wishlist-footer style="display: none;">
+          <button
+            type="button"
+            class="wishlist-btn wishlist-btn--primary"
+            data-add-all-to-cart
+          >
+            Add All to Cart
+          </button>
+          <button
+            type="button"
+            class="wishlist-btn wishlist-btn--secondary"
+            data-clear-wishlist
+          >
+            Remove All
+          </button>
+        </div>
+      </div>
+
+      <!-- Backdrop -->
+      <div class="wishlist-backdrop" data-wishlist-backdrop></div>
+    </div>
+
+  {% else %}
+    <!-- Regular Button Mode -->
+    <div
+      class="wishlist-unified-container wishlist-unified--regular"
+      data-wishlist-unified
+      data-customer-id="{{ customer.id }}"
+      data-display-mode="regular"
+      data-product-id="{{ product.id }}"
+      data-product-handle="{{ product.handle }}"
+    >
+      <button
+        type="button"
+        class="wishlist-unified-button wishlist-unified-button--{{ block.settings.button_style }}"
+        data-wishlist-btn
+        data-product-id="{{ product.id }}"
+        data-product-handle="{{ product.handle }}"
+        data-customer-id="{{ customer.id }}"
+        data-button-text="{{ block.settings.button_text }}"
+        data-button-text-added="{{ block.settings.button_text_added }}"
+        aria-label="{{ block.settings.button_text }}"
+        style="
+          --button-color: {{ block.settings.button_color }};
+          --icon-color: {{ block.settings.icon_color }};
+        "
+      >
+        {% if block.settings.show_icon %}
+          <span class="wishlist-unified-icon" data-wishlist-icon>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                    class="wishlist-icon-outline"
+              />
+            </svg>
+          </span>
+        {% endif %}
+        <span class="wishlist-unified-text" data-wishlist-text>
+          {{ block.settings.button_text }}
+        </span>
+      </button>
+    </div>
+  {% endif %}
+{% else %}
+  {% unless block.settings.display_mode == 'floating' %}
+    <!-- Login required for regular button -->
+    <div class="wishlist-unified-container wishlist-unified--regular">
+      <button
+        type="button"
+        class="wishlist-unified-button wishlist-unified-button--{{ block.settings.button_style }} wishlist-unified-button--login-required"
+        onclick="window.location.href='/account/login?return_url={{ product.url }}'"
+        aria-label="Login to add to wishlist"
+        style="
+          --button-color: {{ block.settings.button_color }};
+          --icon-color: {{ block.settings.icon_color }};
+        "
+      >
+        {% if block.settings.show_icon %}
+          <span class="wishlist-unified-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+              />
+            </svg>
+          </span>
+        {% endif %}
+        <span class="wishlist-unified-text"> Login to add to wishlist </span>
+      </button>
+    </div>
+  {% endunless %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "Wishlist Component",
+  "target": "body",
+  "enabled_on": {
+    "templates": ["*"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Display Mode"
+    },
+    {
+      "type": "select",
+      "id": "display_mode",
+      "label": "Display Mode",
+      "info": "Choose how the wishlist component should appear",
+      "options": [
+        { "value": "regular", "label": "Regular Button (Product Pages)" },
+        { "value": "floating", "label": "Floating Button (Site-wide)" }
+      ],
+      "default": "regular"
+    },
+    {
+      "type": "header",
+      "content": "Regular Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Add to Wishlist"
+    },
+    {
+      "type": "text",
+      "id": "button_text_added",
+      "label": "Button Text (Added)",
+      "default": "Added to Wishlist"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_icon",
+      "label": "Show Heart Icon",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "Button Style",
+      "options": [
+        { "value": "primary", "label": "Primary" },
+        { "value": "secondary", "label": "Secondary" },
+        { "value": "outline", "label": "Outline" }
+      ],
+      "default": "outline"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon Color",
+      "default": "#ff0000"
+    },
+    {
+      "type": "header",
+      "content": "Floating Button Settings"
+    },
+    {
+      "type": "text",
+      "id": "floating_button_text",
+      "label": "Floating Button Text",
+      "default": "My Wishlist"
+    },
+    {
+      "type": "select",
+      "id": "position_side",
+      "label": "Horizontal Position",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "select",
+      "id": "position_vertical",
+      "label": "Vertical Position",
+      "options": [
+        { "value": "top", "label": "Top" },
+        { "value": "bottom", "label": "Bottom" },
+        { "value": "center", "label": "Center" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "offset_horizontal",
+      "label": "Horizontal Offset (px)",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "offset_vertical",
+      "label": "Vertical Offset (px)",
+      "min": 0,
+      "max": 200,
+      "step": 10,
+      "default": 50
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Floating Button Background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Floating Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_bg_color",
+      "label": "Floating Button Hover Color",
+      "default": "#333333"
+    }
+  ]
+}
+{% endschema %}

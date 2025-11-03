@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Floating Wishlist Button Demo</title>
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+			margin: 0;
+			padding: 20px;
+			background-color: #f8f9fa;
+			min-height: 100vh;
+		}
+
+		.demo-container {
+			max-width: 800px;
+			margin: 0 auto;
+			background: white;
+			padding: 40px;
+			border-radius: 12px;
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		}
+
+		.demo-header {
+			text-align: center;
+			margin-bottom: 40px;
+		}
+
+		.demo-header h1 {
+			color: #1f2937;
+			margin-bottom: 10px;
+		}
+
+		.demo-header p {
+			color: #6b7280;
+			font-size: 16px;
+		}
+
+		.demo-content {
+			line-height: 1.6;
+			color: #374151;
+		}
+
+		.demo-section {
+			margin-bottom: 30px;
+		}
+
+		.demo-section h3 {
+			color: #1f2937;
+			border-bottom: 2px solid #e5e7eb;
+			padding-bottom: 10px;
+		}
+
+		.feature-list {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+			gap: 20px;
+			margin: 20px 0;
+		}
+
+		.feature-item {
+			background: #f9fafb;
+			padding: 20px;
+			border-radius: 8px;
+			border-left: 4px solid #3b82f6;
+		}
+
+		.feature-item h4 {
+			margin: 0 0 10px 0;
+			color: #1f2937;
+		}
+
+		.feature-item p {
+			margin: 0;
+			color: #6b7280;
+			font-size: 14px;
+		}
+
+		.config-demo {
+			background: #1f2937;
+			color: #f9fafb;
+			padding: 20px;
+			border-radius: 8px;
+			margin: 20px 0;
+			overflow-x: auto;
+		}
+
+		.config-demo h4 {
+			margin-top: 0;
+			color: #60a5fa;
+		}
+
+		.config-option {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 8px 0;
+			border-bottom: 1px solid #374151;
+		}
+
+		.config-option:last-child {
+			border-bottom: none;
+		}
+
+		.config-label {
+			font-weight: 500;
+		}
+
+		.config-value {
+			color: #34d399;
+			font-family: monospace;
+		}
+
+		.notice {
+			background: #dbeafe;
+			border: 1px solid #93c5fd;
+			color: #1e40af;
+			padding: 15px;
+			border-radius: 8px;
+			margin: 20px 0;
+		}
+
+		.notice strong {
+			display: block;
+			margin-bottom: 5px;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="demo-container">
+		<div class="demo-header">
+			<h1>🛍️ Unified Wishlist Component</h1>
+			<p>Dual-mode wishlist component - Regular Button + Floating Button with Popup</p>
+		</div>
+
+		<div class="demo-content">
+			<div class="demo-section">
+				<h3>🔄 Display Modes</h3>
+				<div class="feature-list">
+					<div class="feature-item">
+						<h4>📱 Regular Button Mode</h4>
+						<p>Perfect for product pages - adds products to wishlist with customizable button styles</p>
+					</div>
+					<div class="feature-item">
+						<h4>🌐 Floating Button Mode</h4>
+						<p>Site-wide floating button with full wishlist popup interface for viewing and managing items
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="demo-section">
+				<h3>✨ Key Features</h3>
+				<div class="feature-list">
+					<div class="feature-item">
+						<h4>📍 Configurable Position</h4>
+						<p>Position the button on left/right side with custom offsets for perfect placement</p>
+					</div>
+					<div class="feature-item">
+						<h4>🎨 Custom Styling</h4>
+						<p>Fully customizable colors, text, and hover effects to match your brand</p>
+					</div>
+					<div class="feature-item">
+						<h4>📱 Responsive Design</h4>
+						<p>Adapts beautifully to mobile devices with optimized touch interactions</p>
+					</div>
+					<div class="feature-item">
+						<h4>🛒 Smart Actions</h4>
+						<p>Individual and bulk actions for adding to cart and managing wishlist items</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="demo-section">
+				<h3>⚙️ Configuration Options</h3>
+				<div class="config-demo">
+					<h4>Position Settings</h4>
+					<div class="config-option">
+						<span class="config-label">Horizontal Position:</span>
+						<span class="config-value">Left | Right</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Vertical Position:</span>
+						<span class="config-value">Top | Center | Bottom</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Horizontal Offset:</span>
+						<span class="config-value">0-100px</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Vertical Offset:</span>
+						<span class="config-value">0-200px</span>
+					</div>
+				</div>
+
+				<div class="config-demo">
+					<h4>Style Settings</h4>
+					<div class="config-option">
+						<span class="config-label">Button Text:</span>
+						<span class="config-value">Custom label</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Background Color:</span>
+						<span class="config-value">Any hex color</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Text Color:</span>
+						<span class="config-value">Any hex color</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Hover Color:</span>
+						<span class="config-value">Any hex color</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="demo-section">
+				<h3>🔧 Popup Features</h3>
+				<div class="feature-item">
+					<h4>📋 Complete Product Info</h4>
+					<p><strong>Displays:</strong></p>
+					<ul>
+						<li>Product name with clickable link</li>
+						<li>Added date in DD MMM, YYYY format</li>
+						<li>Product image with lazy loading</li>
+						<li>Formatted price with currency</li>
+						<li>Individual Add to Cart and Remove buttons</li>
+					</ul>
+				</div>
+
+				<div class="feature-item">
+					<h4>⚡ Bulk Actions</h4>
+					<p><strong>Bottom toolbar includes:</strong></p>
+					<ul>
+						<li><strong>Add All to Cart:</strong> Adds all available products to cart</li>
+						<li><strong>Remove All:</strong> Clears entire wishlist with confirmation</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="demo-section">
+				<h3>💻 Technical Implementation</h3>
+				<div class="config-demo">
+					<h4>Files Created</h4>
+					<div class="config-option">
+						<span class="config-label">Unified Template:</span>
+						<span class="config-value">wishlist-unified.liquid</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Unified CSS:</span>
+						<span class="config-value">wishlist-unified.css</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Unified JavaScript:</span>
+						<span class="config-value">wishlist-unified.js</span>
+					</div>
+					<div class="config-option">
+						<span class="config-label">Configuration:</span>
+						<span class="config-value">shopify.extension.toml</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="notice">
+				<strong>🚀 Ready to Deploy!</strong>
+				The unified wishlist component is configured as a single theme extension with dual functionality.
+				Merchants can add it to any section and choose between Regular Button mode (for product pages) or
+				Floating Button mode (site-wide with popup).
+			</div>
+
+			<div class="demo-section">
+				<h3>📱 Responsive Behavior</h3>
+				<div class="feature-list">
+					<div class="feature-item">
+						<h4>Mobile Optimization</h4>
+						<p>Button text hides on mobile, popup adjusts to screen size, touch-friendly interactions</p>
+					</div>
+					<div class="feature-item">
+						<h4>Accessibility</h4>
+						<p>ARIA labels, keyboard navigation, focus management, high contrast support</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
