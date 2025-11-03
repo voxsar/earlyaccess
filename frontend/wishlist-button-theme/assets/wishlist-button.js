@@ -16,6 +16,7 @@
 			this.productId = this.button.dataset.productId;
 			this.productHandle = this.button.dataset.productHandle;
 			this.customerId = this.button.dataset.customerId;
+			this.shopUrl = this.button.dataset.shopUrl || window.Shopify?.shop;
 			this.textElement = this.button.querySelector('[data-wishlist-text]');
 			this.iconElement = this.button.querySelector('[data-wishlist-icon]');
 
@@ -85,15 +86,23 @@
 
 			// Make API call to backend
 			try {
+				const headers = {
+					'Content-Type': 'application/json',
+				};
+
+				// Add shop URL to headers
+				if (this.shopUrl) {
+					headers['X-Shop-Domain'] = this.shopUrl;
+				}
+
 				const response = await fetch(`${BACKEND_API_URL}/api/wishlist/add`, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
+					headers,
 					body: JSON.stringify({
 						customerId: this.customerId,
 						productId: this.productId,
 						productHandle: this.productHandle,
+						shopUrl: this.shopUrl,
 					}),
 				});
 
@@ -122,14 +131,22 @@
 
 			// Make API call to backend
 			try {
+				const headers = {
+					'Content-Type': 'application/json',
+				};
+
+				// Add shop URL to headers
+				if (this.shopUrl) {
+					headers['X-Shop-Domain'] = this.shopUrl;
+				}
+
 				const response = await fetch(`${BACKEND_API_URL}/api/wishlist/remove`, {
 					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
+					headers,
 					body: JSON.stringify({
 						customerId: this.customerId,
 						productId: this.productId,
+						shopUrl: this.shopUrl,
 					}),
 				});
 

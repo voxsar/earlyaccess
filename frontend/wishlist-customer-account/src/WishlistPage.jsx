@@ -7,13 +7,15 @@ export default extension('customer-account.page.render', (root, api) => {
 	let loading = true;
 	let error = null;
 	let customerId = null;
+	let shopUrl = null;
 	let removeLoading = { id: null, loading: false };
 
-	// Fetch customer ID
+	// Fetch customer ID and shop info
 	async function fetchCustomerId() {
 		try {
-			const customerData = await query('query{customer{id}}');
+			const customerData = await query('query{customer{id} shop{url}}');
 			const rawCustomerId = customerData?.data?.customer?.id;
+			shopUrl = customerData?.data?.shop?.url;
 
 			// Extract numeric ID from Shopify GID format (gid://shopify/Customer/123456789)
 			if (rawCustomerId && rawCustomerId.includes('gid://shopify/Customer/')) {
@@ -23,6 +25,7 @@ export default extension('customer-account.page.render', (root, api) => {
 			}
 
 			console.log('Customer ID:', customerId); // Debug log
+			console.log('Shop URL:', shopUrl); // Debug log
 
 			if (customerId) {
 				await fetchWishlist();
@@ -42,7 +45,7 @@ export default extension('customer-account.page.render', (root, api) => {
 		root.render(renderUI());
 
 		try {
-			const items = await getWishlist(customerId);
+			const items = await getWishlist(customerId, null, shopUrl);
 			wishlist = items;
 		} catch (err) {
 			console.error('Error fetching wishlist:', err);
@@ -59,7 +62,7 @@ export default extension('customer-account.page.render', (root, api) => {
 		root.render(renderUI());
 
 		try {
-			await removeFromWishlist(customerId, productId);
+			await removeFromWishlist(customerId, productId, shopUrl);
 			wishlist = wishlist.filter((item) => item.productId !== productId);
 		} catch (err) {
 			console.error('Error removing from wishlist:', err);

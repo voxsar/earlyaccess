@@ -8,16 +8,18 @@ const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
 /**
  * Add product to wishlist
  */
-export async function addToWishlist(customerId, productId, productHandle) {
+export async function addToWishlist(customerId, productId, productHandle, shopUrl) {
 	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/add`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			'X-Customer-Id': customerId,
+			'X-Shop-Domain': shopUrl,
 		},
 		body: JSON.stringify({
 			productId,
 			productHandle,
+			shopUrl,
 		}),
 	});
 
@@ -31,15 +33,17 @@ export async function addToWishlist(customerId, productId, productHandle) {
 /**
  * Remove product from wishlist
  */
-export async function removeFromWishlist(customerId, productId) {
+export async function removeFromWishlist(customerId, productId, shopUrl) {
 	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/remove`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 			'X-Customer-Id': customerId,
+			'X-Shop-Domain': shopUrl,
 		},
 		body: JSON.stringify({
 			productId,
+			shopUrl,
 		}),
 	});
 
@@ -53,7 +57,7 @@ export async function removeFromWishlist(customerId, productId) {
 /**
  * Get current customer's wishlist
  */
-export async function getWishlist(customerId, sessionToken) {
+export async function getWishlist(customerId, sessionToken, shopUrl) {
 	console.log('Fetching wishlist for customer ID:', customerId);
 
 	const headers = {
@@ -65,6 +69,11 @@ export async function getWishlist(customerId, sessionToken) {
 		headers['Authorization'] = `Bearer ${sessionToken}`;
 	} else {
 		headers['X-Customer-Id'] = customerId;
+	}
+
+	// Add shop URL to headers
+	if (shopUrl) {
+		headers['X-Shop-Domain'] = shopUrl;
 	}
 
 	const response = await fetch(`${BACKEND_API_URL}/api/wishlist/current`, {
@@ -89,14 +98,21 @@ export async function getWishlist(customerId, sessionToken) {
 /**
  * Get specific customer's wishlist (admin use)
  */
-export async function getCustomerWishlist(customerId) {
+export async function getCustomerWishlist(customerId, shopUrl) {
+	const headers = {
+		'Content-Type': 'application/json',
+	};
+
+	// Add shop URL to headers
+	if (shopUrl) {
+		headers['X-Shop-Domain'] = shopUrl;
+	}
+
 	const response = await fetch(
 		`${BACKEND_API_URL}/api/wishlist/${customerId}`,
 		{
 			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-			},
+			headers,
 		}
 	);
 

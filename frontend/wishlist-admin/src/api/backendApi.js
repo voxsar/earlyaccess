@@ -8,7 +8,7 @@ const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
 /**
  * Get specific customer's wishlist (admin use)
  */
-export async function getCustomerWishlist(customerId, sessionToken) {
+export async function getCustomerWishlist(customerId, sessionToken, shopUrl) {
 	if (!sessionToken) {
 		throw new Error('Session token is required for admin API calls');
 	}
@@ -18,14 +18,21 @@ export async function getCustomerWishlist(customerId, sessionToken) {
 		? customerId.split('/').pop()
 		: customerId;
 
+	const headers = {
+		'Content-Type': 'application/json',
+		'Authorization': `Bearer ${sessionToken}`,
+	};
+
+	// Add shop URL to headers
+	if (shopUrl) {
+		headers['X-Shop-Domain'] = shopUrl;
+	}
+
 	const response = await fetch(
 		`${BACKEND_API_URL}/api/wishlist/customer/${numericCustomerId}`,
 		{
 			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${sessionToken}`,
-			},
+			headers,
 		}
 	);
 
