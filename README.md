@@ -13,7 +13,7 @@ This app uses a **split architecture** with separate backend and frontend:
 Frontend (UI Extensions) → Backend API → Shopify GraphQL API → Customer Metafields
 ```
 
-For detailed architecture documentation, see [CODEBASE_SPLIT.md](./CODEBASE_SPLIT.md).
+For detailed architecture documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## 📁 Project Structure
 
@@ -114,6 +114,35 @@ Block extension for viewing customer wishlists in admin.
 - Link to product admin pages
 - Stock and status information
 
+## Quick Start
+
+### For Merchants
+
+1. Install the app from the Shopify App Store
+2. Go to **Online Store → Themes → Customize**
+3. Add the **"Add to Wishlist"** block to product pages
+4. Customize button appearance and save
+5. Test by logging in as a customer and adding products to wishlist
+
+### For Developers
+
+```bash
+# Clone and install
+git clone <repository-url>
+cd earlyaccess
+npm install
+
+# Install extension dependencies
+cd frontend/wishlist-customer-account && npm install
+cd ../wishlist-admin && npm install
+cd ../..
+
+# Start development server
+npm run dev
+```
+
+Follow the CLI prompts to connect to your development store and start testing.
+
 ## Installation
 
 ### Prerequisites
@@ -122,7 +151,7 @@ Block extension for viewing customer wishlists in admin.
 - Node.js 18+ and npm
 - Shopify CLI 3.86+
 
-### Setup
+### Detailed Setup
 
 1. **Clone the repository**
    ```bash
@@ -130,9 +159,13 @@ Block extension for viewing customer wishlists in admin.
    cd earlyaccess
    ```
 
-2. **Backend Setup**
+2. **Backend Setup (Optional)**
+   
+   > **Note**: The backend API is optional. Extensions work with direct Shopify GraphQL calls. The backend provides caching, analytics, and reduces bundle sizes.
+   
+   If using backend:
    ```bash
-   cd backend
+   cd backend2
    npm install
    cp .env.example .env
    ```
@@ -162,9 +195,9 @@ Block extension for viewing customer wishlists in admin.
    cd ../..
    ```
 
-5. **Configure API URL**
+5. **Configure API URL (Only if using backend)**
    
-   Update the backend API URL in:
+   If using the optional backend API, update these files:
    - `frontend/wishlist-button-theme/assets/wishlist-button.js`
    - `frontend/wishlist-customer-account/src/api/backendApi.js`
    - `frontend/wishlist-admin/src/api/backendApi.js`
@@ -179,12 +212,15 @@ Block extension for viewing customer wishlists in admin.
    const BACKEND_API_URL = 'https://earlyaccessapi.dev.artslabcreatives.com';
    ```
 
-6. **Start development servers**
+6. **Start development**
    ```bash
-   npm run dev:full
+   npm run dev
    ```
    
-   This will start both the backend API server and Shopify app dev server.
+   This starts the Shopify app dev server. If using backend API, start it separately:
+   ```bash
+   cd backend2 && npm run dev
+   ```
 
 7. **Follow CLI prompts**
    - Select your app
@@ -195,26 +231,34 @@ Block extension for viewing customer wishlists in admin.
 
 ### Running the Application
 
+**Without Backend API** (Default):
+```bash
+npm run dev
+```
+
+**With Backend API** (Optional):
+
+Terminal 1 - Backend:
+
 #### Option 1: Run Backend and Frontend Together (Recommended)
 ```bash
 npm run dev:full
 ```
-This command starts both the backend API server and the Shopify app dev server concurrently.
-
-#### Option 2: Run Backend and Frontend Separately
-
-**Terminal 1 - Backend API:**
 ```bash
-cd backend
+cd backend2
 npm run dev
 ```
 
-**Terminal 2 - Shopify Extensions:**
+Terminal 2 - Frontend:
 ```bash
 npm run dev
 ```
 
-### Testing Theme Extension
+### Testing Extensions
+
+See [TESTING_GUIDE.md](./TESTING_GUIDE.md) for comprehensive testing instructions.
+
+#### Testing Theme Extension
 
 1. Navigate to your development store
 2. Go to Online Store > Themes
@@ -400,6 +444,16 @@ Edit `extensions/wishlist-admin/src/WishlistBlock.jsx` to customize:
 - Check admin UI extensions are enabled
 - Verify customer has wishlist data
 
+## Documentation
+
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Detailed architecture documentation
+- **[API.md](./API.md)** - Complete API reference and GraphQL queries
+- **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Comprehensive testing guide
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions for various platforms
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute to the project
+- **[CHANGELOG.md](./CHANGELOG.md)** - Version history and changes
+- **[BUNDLE_SIZE_VERIFICATION.md](./BUNDLE_SIZE_VERIFICATION.md)** - Bundle optimization notes
+
 ## Future Enhancements
 
 ### Early Access Pages
@@ -418,9 +472,16 @@ Edit `extensions/wishlist-admin/src/WishlistBlock.jsx` to customize:
 ## Support
 
 For issues or questions:
-1. Check the troubleshooting section
-2. Review Shopify dev docs: https://shopify.dev
-3. Open an issue in the repository
+1. **Documentation**: Check the docs listed above
+2. **Testing**: See [TESTING_GUIDE.md](./TESTING_GUIDE.md)
+3. **Architecture**: Review [ARCHITECTURE.md](./ARCHITECTURE.md)
+4. **Shopify Docs**: https://shopify.dev
+5. **Issues**: Open an issue in the repository
+
+## Related Documentation
+
+- **Backend2 API**: See [backend2/README.md](./backend2/README.md) for Laravel backend
+- **Frontend**: See [frontend/README.md](./frontend/README.md) for extension details
 
 ## License
 

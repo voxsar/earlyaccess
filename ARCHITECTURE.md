@@ -1,6 +1,88 @@
-# Architecture Diagram
+# Architecture Documentation
 
-## System Architecture
+This document provides detailed architecture information for the Early Access + Wishlist Shopify App.
+
+## Table of Contents
+- [System Overview](#system-overview)
+- [Split Architecture](#split-architecture)
+- [System Architecture Diagram](#system-architecture-diagram)
+- [Data Flow](#data-flow)
+- [Component Architecture](#component-architecture)
+- [Deployment Architecture](#deployment-architecture)
+- [Technology Stack](#technology-stack)
+- [Security Model](#security-model)
+- [Performance Considerations](#performance-considerations)
+
+## System Overview
+
+The Early Access + Wishlist app uses a **split architecture** with separate backend and frontend components:
+
+- **Backend API**: Node.js/Express server (optional) at `earlyaccessapi.dev.artslabcreatives.com`
+- **Frontend**: Shopify UI extensions (theme, customer account, admin)
+
+```
+Frontend (UI Extensions) → Backend API (Optional) → Shopify GraphQL API → Customer Metafields
+```
+
+> **Note**: The backend API is optional. Extensions can make direct GraphQL calls to Shopify APIs. The backend provides additional features like caching, analytics, and reduced client-side bundle sizes.
+
+## Split Architecture
+
+### Directory Structure
+
+```
+earlyaccess/
+├── backend2/                   # Laravel backend API (optional)
+│   ├── app/
+│   │   ├── Http/Controllers/  # Request handlers
+│   │   └── Services/          # Business logic
+│   └── routes/                # API routes
+│
+├── frontend/                   # Frontend UI extensions
+│   ├── wishlist-button-theme/ # Storefront extension
+│   ├── wishlist-customer-account/ # Customer account extension
+│   ├── wishlist-admin/        # Admin extension
+│   └── README.md
+│
+└── shopify.app.toml           # Shopify app config
+```
+
+### Architecture Comparison
+
+**Direct GraphQL Approach** (Current Default):
+```
+Frontend Extensions → Shopify GraphQL API → Customer Metafields
+```
+
+**Pros:**
+- Simple architecture
+- No backend infrastructure needed
+- Direct access to Shopify's APIs
+- Smaller deployment footprint
+
+**Cons:**
+- All logic runs in frontend (larger bundles)
+- Limited caching capabilities
+- Cannot add custom business logic easily
+
+**Backend API Approach** (Optional):
+```
+Frontend Extensions → Backend API → Shopify GraphQL API → Customer Metafields
+```
+
+**Pros:**
+- Reduced frontend bundle size (30-40% smaller)
+- Backend can cache frequently accessed data
+- Easy to add advanced features (analytics, notifications)
+- Better security (credentials server-side only)
+- Scalable architecture
+
+**Cons:**
+- Additional infrastructure to deploy
+- More complex deployment
+- Additional hosting costs
+
+## System Architecture Diagram
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -54,6 +136,84 @@
             │  - Metafields│              │  - Variants  │
             │  - Products  │              │  - Pricing   │
             └──────────────┘              └──────────────┘
+```
+
+## Data Flow
+
+### Add to Wishlist Flow (Direct GraphQL)
+
+```
+1. Customer clicks "Add to Wishlist" button (Frontend)
+   └─> Theme Extension (wishlist-button.js)
+
+2. Frontend updates local storage (optimistic UI)
+   └─> localStorage.setItem('wishlist_products', [...])
+
+3. Frontend calls Shopify Customer Account API
+   └─> GraphQL mutation: metafieldsSet
+       Variables: { customerId, metafields: [{
+         namespace: "app",
+         key: "wishlist",
+         value: [productIds...],
+         type: "list.product_reference"
+       }]}
+
+4. Shopify updates customer metafield
+   └─> Customer.metafield.app.wishlist updated
+
+5. Frontend displays success toast
+   └─> "Added to wishlist!"
+```
+
+### Add to Wishlist Flow (With Backend API)
+
+```
+1. Customer clicks "Add to Wishlist" button (Frontend)
+   └─> Theme Extension (wishlist-button.js)
+
+2. Frontend updates local storage (optimistic UI)
+   └─> localStorage.setItem('wishlist_products', [...])
+
+3. Frontend calls Backend API
+   └─> POST https://earlyaccessapi.dev.artslabcreatives.com/api/wishlist/add
+       Headers: { X-Customer-Id: "gid://shopify/Customer/123" }
+       Body: { productId: "gid://shopify/Product/456" }
+
+4. Backend validates and processes
+   └─> wishlistController.addToWishlist()
+       └─> wishlistService.addToWishlist()
+           └─> shopifyService.getCustomerMetafield()
+           └─> shopifyService.updateCustomerMetafield()
+
+5. Backend calls Shopify GraphQL API
+   └─> mutation metafieldsSet(...)
+
+6. Backend returns success
+   └─> { success: true, data: { itemCount: 5 } }
+
+7. Frontend displays success toast
+   └─> "Added to wishlist!"
+```
+
+### Get Wishlist Flow
+
+```
+1. Customer opens wishlist page (Frontend)
+   └─> Customer Account Extension (WishlistPage.jsx)
+
+2. Frontend gets customer ID
+   └─> query { customer { id } }
+
+3. Frontend queries wishlist metafield
+   └─> query { customer { metafield(namespace: "app", key: "wishlist") { value } } }
+
+4. Parse product IDs from metafield value
+
+5. Frontend queries product details
+   └─> query { nodes(ids: [...]) { ... on Product { id, title, price, image } } }
+
+6. Frontend displays products in grid
+   └─> Product cards with images, titles, and prices
 ```
 
 ## Data Flow Diagram
@@ -475,3 +635,148 @@ This architecture is designed to be:
 - **Secure**: Proper authentication and authorization
 - **Maintainable**: Clear separation of concerns
 - **Extensible**: Easy to add new features
+
+## Benefits of Backend API (Optional)
+
+If implementing the optional backend API, you gain:
+
+### 1. Reduced Bundle Size
+- Frontend only contains UI code
+- No GraphQL query logic in client
+- Smaller bundle = faster load times
+- **Estimated savings**: 30-40% smaller bundles
+
+### 2. Better Performance
+- Backend can cache frequently accessed data
+- Batch operations on server side
+- Reduced number of client-side API calls
+- Server-side query optimization
+
+### 3. Enhanced Security
+- Shopify credentials only on backend
+- Customer authentication validated server-side
+- No sensitive data in client code
+- Rate limiting and abuse prevention
+
+### 4. Easier Maintenance
+- Clear separation of concerns
+- Backend logic can be updated without redeploying frontend
+- Easier to test and debug
+- Centralized error handling
+
+### 5. Scalability
+- Backend can be scaled independently
+- Can add rate limiting, caching, CDN
+- Support for future features (analytics, webhooks)
+- Database for complex queries (if needed)
+
+### 6. Future-Proof
+- Easy to add new features without frontend changes
+- Can integrate with other services
+- Support for mobile apps or other clients
+- Analytics and monitoring infrastructure
+
+## Migration to Backend API
+
+If you decide to implement the backend API later:
+
+### Changes Required
+
+**Before (Direct GraphQL)**:
+```javascript
+{
+  data: {
+    customer: {
+      metafield: {
+        value: "[\"gid://shopify/Product/123\"]"
+      }
+    }
+  }
+}
+```
+
+**After (Backend API)**:
+```javascript
+{
+  success: true,
+  data: {
+    items: [
+      {
+        productId: "gid://shopify/Product/123",
+        title: "Product Name",
+        price: "29.99",
+        currency: "USD",
+        imageUrl: "https://...",
+        ...
+      }
+    ]
+  }
+}
+```
+
+### Backend API Endpoints
+
+If implementing backend:
+
+1. **Health Checks**
+   - `GET /api/health` - Server health
+   - `GET /api/health/ready` - Readiness check
+
+2. **Wishlist Operations**
+   - `POST /api/wishlist/add` - Add product
+   - `POST /api/wishlist/remove` - Remove product
+   - `GET /api/wishlist/current` - Get current customer's wishlist
+   - `GET /api/wishlist/:customerId` - Get specific customer's wishlist
+
+See [API.md](./API.md) for complete API documentation.
+
+## Troubleshooting
+
+### Common Architecture Issues
+
+**CORS Issues**
+- Ensure backend has correct CORS configuration
+- Check `ALLOWED_ORIGINS` environment variable
+- Verify frontend is making requests from allowed origin
+
+**Authentication Errors**
+- Verify customer ID is being passed correctly
+- Check backend logs for authentication failures
+- Ensure Shopify credentials are valid
+
+**API Call Failures**
+- Check backend server is running (if using backend)
+- Verify API URL is correct in frontend code
+- Review network tab in browser dev tools
+- Check backend logs for errors
+
+## Future Enhancements
+
+### Phase 1 (Current)
+- ✅ Direct GraphQL implementation
+- ✅ Frontend UI components
+- ✅ Basic CRUD operations
+- ✅ Customer metafield storage
+
+### Phase 2 (Optional Backend)
+- [ ] Backend API setup
+- [ ] Frontend API connectors
+- [ ] Session token authentication
+- [ ] Rate limiting
+- [ ] API caching
+
+### Phase 3 (Advanced Features)
+- [ ] Analytics endpoints
+- [ ] Email notifications
+- [ ] Webhook handlers
+- [ ] Admin dashboard
+- [ ] Mobile app support
+- [ ] Wishlist sharing
+- [ ] Product recommendations
+
+---
+
+For more information:
+- [API Documentation](./API.md)
+- [Deployment Guide](./DEPLOYMENT.md)
+- [Testing Guide](./TESTING_GUIDE.md)
