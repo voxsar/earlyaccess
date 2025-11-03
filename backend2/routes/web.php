@@ -39,6 +39,11 @@ Route::middleware(['verify.shopify'])->group(function () {
     
     // All wishlisted products
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+
+    // AJAX API endpoints
+    Route::get('/api/customers-data', [CustomerController::class, 'getCustomersData'])->name('api.customers');
+    Route::get('/api/products-data', [ProductController::class, 'getProductsData'])->name('api.products');
+    Route::get('/api/customer-wishlist/{customerId}', [CustomerController::class, 'getCustomerWishlist'])->name('api.customer.wishlist');
 });
 /*
 |--------------------------------------------------------------------------

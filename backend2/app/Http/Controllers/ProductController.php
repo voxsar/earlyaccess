@@ -29,6 +29,26 @@ class ProductController extends Controller
     }
 
     /**
+     * Get products data as JSON for AJAX
+     */
+    public function getProductsData()
+    {
+        $products = Wishlist::select('product_shopify_id', 'product_name')
+            ->selectRaw('COUNT(*) as customer_count')
+            ->groupBy('product_shopify_id', 'product_name')
+            ->orderBy('customer_count', 'desc')
+            ->get();
+
+        $shop = User::first();
+        $shopDomain = $shop ? $shop->name : 'your-shop';
+
+        return response()->json([
+            'products' => $products,
+            'shopDomain' => $shopDomain
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()

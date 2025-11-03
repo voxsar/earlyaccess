@@ -23,6 +23,8 @@ class WishListController extends Controller
                 'productId' => 'required|string',
             ]);
 
+			Log::info($request);
+
             $customerId = $request->customerId;
             $productId = $request->productId;
 
@@ -30,7 +32,7 @@ class WishListController extends Controller
 			$productId = 'gid://shopify/Product/' . $productId;
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([
@@ -82,7 +84,7 @@ class WishListController extends Controller
 			$productId = 'gid://shopify/Product/' . $productId;
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([
@@ -129,7 +131,7 @@ class WishListController extends Controller
             }
 
             // Get current shop - this should be set by the verify.shopify middleware
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([
@@ -184,7 +186,7 @@ class WishListController extends Controller
             }
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([
@@ -231,7 +233,7 @@ class WishListController extends Controller
             $customerId = $request->customerId;
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([
@@ -283,7 +285,7 @@ class WishListController extends Controller
             }
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([
@@ -334,7 +336,7 @@ class WishListController extends Controller
             }
 
             // Get current shop
-            $shop = User::first();
+            $shop = User::where('name', $request->shopUrl)->first();
 
             if (!$shop) {
                 return response()->json([

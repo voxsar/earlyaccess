@@ -26,6 +26,24 @@ class CustomerController extends Controller
     }
 
     /**
+     * Get customers data as JSON for AJAX
+     */
+    public function getCustomersData()
+    {
+        $customers = Customer::withCount('wishlists')
+            ->orderBy('wishlist_count', 'desc')
+            ->get();
+
+        $shop = User::first();
+        $shopDomain = $shop ? $shop->name : 'your-shop';
+
+        return response()->json([
+            'customers' => $customers,
+            'shopDomain' => $shopDomain
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create()
@@ -54,6 +72,22 @@ class CustomerController extends Controller
         $shopDomain = $shop ? $shop->name : 'your-shop';
 
         return view('wishlist', compact('customer', 'shopDomain'));
+    }
+
+    /**
+     * Get customer wishlist data as JSON for AJAX
+     */
+    public function getCustomerWishlist($customerId)
+    {
+        $customer = Customer::with('wishlists')->findOrFail($customerId);
+        
+        $shop = User::first();
+        $shopDomain = $shop ? $shop->name : 'your-shop';
+
+        return response()->json([
+            'customer' => $customer,
+            'shopDomain' => $shopDomain
+        ]);
     }
 
     /**

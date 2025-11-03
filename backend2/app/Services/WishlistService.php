@@ -157,7 +157,6 @@ class WishlistService
                     'currency' => $product['priceRange']['minVariantPrice']['currencyCode'] ?? null,
                     'imageUrl' => $product['featuredImage']['url'] ?? null,
                     'url' => $product['onlineStoreUrl'] ?? "/products/{$product['handle']}",
-                    'availableForSale' => $product['availableForSale'] ?? false,
                     'addedAt' => $timestamps[$product['id']] ?? null
                 ];
             }
@@ -344,6 +343,12 @@ class WishlistService
             // Get or create customer record
             $customer = self::getOrCreateCustomer($customerId, $shop);
 
+            // Check if customer was successfully retrieved/created
+            if (!$customer) {
+                Log::error('Failed to get or create customer for ID: ' . $customerId);
+                return; // Exit early if customer is null
+            }
+
             if ($action === 'add') {
                 // Get product details for the wishlist record
                 $productDetails = ShopifyService::getProductsByIds([$productId], $shop);
@@ -378,7 +383,7 @@ class WishlistService
             }
 
         } catch (\Exception $error) {
-            Log::error('Error updating local database: ' . $error->getMessage());
+            Log::error('Error updating local database: ' . $error);
             // Don't throw error for database updates, it's not critical for the main functionality
         }
     }
@@ -406,13 +411,15 @@ class WishlistService
                         'shopify_customer_id' => $numericCustomerId,
                         'wishlist_count' => 0
                     ]);
+                } else {
+                    Log::error('Could not retrieve customer details from Shopify for customer ID: ' . $customerId);
                 }
             }
 
             return $customer;
         } catch (\Exception $error) {
             Log::error('Error getting or creating customer: ' . $error->getMessage());
-            throw $error;
+            return null; // Return null instead of throwing to let calling method handle it
         }
     }
 }
