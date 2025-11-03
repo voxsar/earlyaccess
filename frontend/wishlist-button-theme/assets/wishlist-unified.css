@@ -158,8 +158,27 @@
 
 .wishlist-unified--floating[style*="--floating-position-vertical: center"] {
 	top: 50%;
-	transform: translateY(-50%);
 	margin-top: var(--floating-offset-vertical, 0px);
+}
+
+/* Rotation for left/right positioned buttons */
+.wishlist-unified--floating[style*="--floating-position-side: left"] .wishlist-unified-button--floating {
+	transform: rotate(-90deg);
+	transform-origin: center center;
+}
+
+.wishlist-unified--floating[style*="--floating-position-side: right"] .wishlist-unified-button--floating {
+	transform: rotate(90deg);
+	transform-origin: center center;
+}
+
+/* Handle center vertical positioning with rotation */
+.wishlist-unified--floating[style*="--floating-position-side: left"][style*="--floating-position-vertical: center"] {
+	transform: translateY(-50%);
+}
+
+.wishlist-unified--floating[style*="--floating-position-side: right"][style*="--floating-position-vertical: center"] {
+	transform: translateY(-50%);
 }
 
 /* Floating button styles */
@@ -171,16 +190,29 @@
 	font-size: 14px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	position: relative;
+	transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.wishlist-unified-button--floating:hover {
+/* Hover effects for left-positioned button */
+.wishlist-unified--floating[style*="--floating-position-side: left"] .wishlist-unified-button--floating:hover {
 	background-color: var(--button-hover-bg-color, #333);
-	transform: translateY(-2px);
+	transform: rotate(-90deg) translateX(-2px);
 	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
 }
 
-.wishlist-unified-button--floating:active {
-	transform: translateY(0);
+.wishlist-unified--floating[style*="--floating-position-side: left"] .wishlist-unified-button--floating:active {
+	transform: rotate(-90deg) translateX(0);
+}
+
+/* Hover effects for right-positioned button */
+.wishlist-unified--floating[style*="--floating-position-side: right"] .wishlist-unified-button--floating:hover {
+	background-color: var(--button-hover-bg-color, #333);
+	transform: rotate(90deg) translateX(-2px);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.wishlist-unified--floating[style*="--floating-position-side: right"] .wishlist-unified-button--floating:active {
+	transform: rotate(90deg) translateX(0);
 }
 
 .wishlist-unified-button--floating .wishlist-unified-icon {
