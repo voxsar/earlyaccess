@@ -27,6 +27,12 @@ class AdminDashboardController extends Controller
      */
     public function getInsights(Request $request)
     {
+        // Validate and parse dates
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+        ]);
+
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth());
 
@@ -76,6 +82,13 @@ class AdminDashboardController extends Controller
      */
     public function getTopProducts(Request $request)
     {
+        // Validate inputs
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
         $limit = $request->input('limit', 10);
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth());
@@ -107,6 +120,13 @@ class AdminDashboardController extends Controller
      */
     public function getTopCustomers(Request $request)
     {
+        // Validate inputs
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
         $limit = $request->input('limit', 10);
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth());
@@ -139,6 +159,13 @@ class AdminDashboardController extends Controller
      */
     public function getActivityStats(Request $request)
     {
+        // Validate inputs
+        $request->validate([
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'group_by' => 'nullable|in:day,week,month',
+        ]);
+
         $startDate = $request->input('start_date', Carbon::now()->startOfMonth());
         $endDate = $request->input('end_date', Carbon::now()->endOfMonth());
         $groupBy = $request->input('group_by', 'day'); // day, week, month
@@ -194,6 +221,11 @@ class AdminDashboardController extends Controller
      */
     public function getRecentActivities(Request $request)
     {
+        // Validate input
+        $request->validate([
+            'limit' => 'nullable|integer|min:1|max:100',
+        ]);
+
         $limit = $request->input('limit', 20);
 
         $activities = WishlistActivity::with('customer')

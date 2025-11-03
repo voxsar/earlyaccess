@@ -201,7 +201,7 @@
 
         async function loadInsights(startDate, endDate) {
             try {
-                const response = await fetch(`/api/dashboard/insights?start_date=${startDate}&end_date=${endDate}`);
+                const response = await fetch(`/api/dashboard/insights?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -218,7 +218,7 @@
 
         async function loadTopProducts(startDate, endDate) {
             try {
-                const response = await fetch(`/api/dashboard/top-products?start_date=${startDate}&end_date=${endDate}&limit=10`);
+                const response = await fetch(`/api/dashboard/top-products?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&limit=10`);
                 const result = await response.json();
                 
                 if (result.success && result.data.length > 0) {
@@ -248,7 +248,7 @@
 
         async function loadTopCustomers(startDate, endDate) {
             try {
-                const response = await fetch(`/api/dashboard/top-customers?start_date=${startDate}&end_date=${endDate}&limit=10`);
+                const response = await fetch(`/api/dashboard/top-customers?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&limit=10`);
                 const result = await response.json();
                 
                 if (result.success && result.data.length > 0) {
@@ -281,7 +281,7 @@
 
         async function loadActivityStats(startDate, endDate) {
             try {
-                const response = await fetch(`/api/dashboard/activity-stats?start_date=${startDate}&end_date=${endDate}&group_by=day`);
+                const response = await fetch(`/api/dashboard/activity-stats?start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}&group_by=day`);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -293,8 +293,8 @@
                     }
                     
                     const labels = result.data.map(item => item.date);
-                    const addData = result.data.map(item => item.add + item.create_new);
-                    const removeData = result.data.map(item => item.remove);
+                    const addData = result.data.map(item => (item.add || 0) + (item.create_new || 0));
+                    const removeData = result.data.map(item => item.remove || 0);
                     
                     activityChart = new Chart(ctx, {
                         type: 'line',

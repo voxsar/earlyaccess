@@ -370,6 +370,9 @@ class WishlistService
                     ->first();
 
                 if (! $existingWishlistItem) {
+                    // Determine activity type before incrementing count
+                    $activityType = $customer->wishlist_count == 0 ? 'create_new' : 'add';
+
                     // Create new wishlist item
                     Wishlist::create([
                         'product_name' => $productTitle,
@@ -380,9 +383,7 @@ class WishlistService
                     // Update customer wishlist count
                     $customer->increment('wishlist_count');
 
-                    // Track activity - determine if this is a new wishlist creation
-                    $activityType = $customer->wishlist_count == 1 ? 'create_new' : 'add';
-
+                    // Track activity
                     self::trackActivity($customer->id, $numericProductId, $productTitle, $activityType);
                 }
             } elseif ($action === 'remove') {
