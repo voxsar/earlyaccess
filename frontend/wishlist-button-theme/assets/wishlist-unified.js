@@ -44,13 +44,14 @@
 			this.closeBtn = this.container.querySelector('[data-wishlist-close]');
 			this.countBadge = this.container.querySelector('[data-wishlist-count]');
 
-			// Content elements
+			// Content elements (only for logged in users)
 			this.loadingElement = this.container.querySelector('[data-wishlist-loading]');
 			this.emptyElement = this.container.querySelector('[data-wishlist-empty]');
 			this.itemsContainer = this.container.querySelector('[data-wishlist-items]');
 			this.footer = this.container.querySelector('[data-wishlist-footer]');
+			this.loginRequiredElement = this.container.querySelector('[data-wishlist-login-required]');
 
-			// Action buttons
+			// Action buttons (only for logged in users)  
 			this.addAllBtn = this.container.querySelector('[data-add-all-to-cart]');
 			this.clearAllBtn = this.container.querySelector('[data-clear-wishlist]');
 
@@ -59,7 +60,11 @@
 			this.wishlistItems = [];
 			this.isLoading = false;
 
-			this.loadWishlistCount();
+			// Only load wishlist data if user is logged in
+			if (this.customerId) {
+				this.loadWishlistCount();
+			}
+
 			this.attachFloatingEventListeners();
 
 			// Listen for wishlist changes from other components
@@ -205,9 +210,13 @@
 				}
 			});
 
-			// Bottom action buttons
-			this.addAllBtn.addEventListener('click', () => this.addAllToCart());
-			this.clearAllBtn.addEventListener('click', () => this.clearWishlist());
+			// Bottom action buttons (only if they exist - for logged in users)
+			if (this.addAllBtn) {
+				this.addAllBtn.addEventListener('click', () => this.addAllToCart());
+			}
+			if (this.clearAllBtn) {
+				this.clearAllBtn.addEventListener('click', () => this.clearWishlist());
+			}
 		}
 
 		async openPopup() {
@@ -220,8 +229,11 @@
 			// Prevent body scroll
 			document.body.style.overflow = 'hidden';
 
-			// Load wishlist items
-			await this.loadWishlistItems();
+			// Only load wishlist items if user is logged in
+			if (this.customerId) {
+				await this.loadWishlistItems();
+			}
+			// For non-logged users, the login required state is already shown via Liquid template
 		}
 
 		closePopup() {

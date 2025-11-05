@@ -24,26 +24,40 @@
 }
 
 .wishlist-unified-button:hover {
-	transform: translateY(-1px);
+	transform: translateY(-2px);
+	filter: brightness(1.05);
+	z-index: 1;
+	position: relative;
 }
 
 .wishlist-unified-button:active {
-	transform: translateY(0);
+	transform: translateY(-1px);
+	filter: brightness(0.95);
 }
 
 .wishlist-unified-button:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
+	transform: none !important;
+	filter: none !important;
+}
+
+.wishlist-unified-button:focus-visible {
+	outline: 2px solid var(--button-color, #000);
+	outline-offset: 2px;
+	z-index: 10;
+	position: relative;
 }
 
 .wishlist-unified-icon {
 	display: inline-flex;
 	align-items: center;
-	transition: transform 0.2s ease-in-out;
+	transition: transform 0.3s ease-in-out, color 0.2s ease-in-out;
 }
 
 .wishlist-unified-button:hover .wishlist-unified-icon {
-	transform: scale(1.1);
+	transform: scale(1.15);
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .wishlist-unified-text {
@@ -64,10 +78,14 @@
 	background-color: transparent;
 	color: var(--button-color, #000);
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease-in-out;
 }
 
 .wishlist-unified--regular .wishlist-unified-button:hover {
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+	border-color: var(--button-color, #000);
+	background-color: rgba(0, 0, 0, 0.02);
+	transform: translateY(-2px) scale(1.02);
 }
 
 /* Regular button style variants */
@@ -77,16 +95,32 @@
 	border-color: var(--button-color, #000);
 }
 
+.wishlist-unified-button--primary:hover {
+	background-color: rgba(0, 0, 0, 0.9) !important;
+	filter: brightness(0.9);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
 .wishlist-unified-button--secondary {
 	background-color: rgba(0, 0, 0, 0.05) !important;
 	color: var(--button-color, #000) !important;
 	border-color: transparent;
 }
 
+.wishlist-unified-button--secondary:hover {
+	background-color: rgba(0, 0, 0, 0.1) !important;
+	border-color: var(--button-color, #000) !important;
+}
+
 .wishlist-unified-button--outline {
 	background-color: transparent !important;
 	color: var(--button-color, #000) !important;
 	border-color: var(--button-color, #000);
+}
+
+.wishlist-unified-button--outline:hover {
+	background-color: var(--button-color, #000) !important;
+	color: white !important;
 }
 
 /* Regular button icon styles */
@@ -139,47 +173,7 @@
 	z-index: 9999;
 }
 
-/* Floating position calculations */
-.wishlist-unified--floating[data-position-side="left"] {
-	left: var(--floating-offset-horizontal, 20px);
-}
-
-.wishlist-unified--floating[data-position-side="right"] {
-	right: var(--floating-offset-horizontal, 20px);
-}
-
-.wishlist-unified--floating[data-position-vertical="top"] {
-	top: var(--floating-offset-vertical, 50px);
-}
-
-.wishlist-unified--floating[data-position-vertical="bottom"] {
-	bottom: var(--floating-offset-vertical, 50px);
-}
-
-.wishlist-unified--floating[data-position-vertical="center"] {
-	top: 50%;
-	margin-top: var(--floating-offset-vertical, 0px);
-}
-
-/* Rotation for left/right positioned buttons */
-.wishlist-unified--floating[data-position-side="left"] .wishlist-unified-button--floating {
-	transform: rotate(-90deg);
-	transform-origin: center center;
-}
-
-.wishlist-unified--floating[data-position-side="right"] .wishlist-unified-button--floating {
-	transform: rotate(90deg);
-	transform-origin: center center;
-}
-
-/* Handle center vertical positioning with rotation */
-.wishlist-unified--floating[data-position-side="left"][data-position-vertical="center"] {
-	transform: translateY(-50%);
-}
-
-.wishlist-unified--floating[data-position-side="right"][data-position-vertical="center"] {
-	transform: translateY(-50%);
-}
+/* Floating position - uses direct CSS positioning from inline styles */
 
 /* Floating button styles */
 .wishlist-unified-button--floating {
@@ -190,29 +184,23 @@
 	font-size: 14px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	position: relative;
-	transition: transform 0.2s ease-in-out, background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	cursor: pointer;
+	z-index: 9999;
 }
 
-/* Hover effects for left-positioned button */
-.wishlist-unified--floating[data-position-side="left"] .wishlist-unified-button--floating:hover {
-	background-color: var(--button-hover-bg-color, #333);
-	transform: rotate(-90deg) translateX(-2px);
-	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+/* Floating button hover effects - simplified since no rotation */
+.wishlist-unified-button--floating:hover {
+	background-color: var(--button-hover-bg-color, #333) !important;
+	transform: translateY(-2px) scale(1.05);
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+	z-index: 10001;
+	position: relative;
 }
 
-.wishlist-unified--floating[data-position-side="left"] .wishlist-unified-button--floating:active {
-	transform: rotate(-90deg) translateX(0);
-}
-
-/* Hover effects for right-positioned button */
-.wishlist-unified--floating[data-position-side="right"] .wishlist-unified-button--floating:hover {
-	background-color: var(--button-hover-bg-color, #333);
-	transform: rotate(90deg) translateX(-2px);
-	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.wishlist-unified--floating[data-position-side="right"] .wishlist-unified-button--floating:active {
-	transform: rotate(90deg) translateX(0);
+.wishlist-unified-button--floating:active {
+	transform: translateY(-1px) scale(1.02);
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .wishlist-unified-button--floating .wishlist-unified-icon {
@@ -390,6 +378,41 @@
 	font-size: 14px;
 }
 
+/* Login Required State */
+.wishlist-login-required {
+	text-align: center;
+	padding: 40px 24px;
+	color: #6b7280;
+}
+
+.wishlist-login-icon {
+	margin-bottom: 16px;
+	color: #3b82f6;
+}
+
+.wishlist-login-required h4 {
+	margin: 0 0 8px 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: #1f2937;
+}
+
+.wishlist-login-required p {
+	margin: 0 0 24px 0;
+	font-size: 14px;
+}
+
+.wishlist-login-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+}
+
+.wishlist-login-actions .wishlist-btn {
+	flex: 0 0 auto;
+	min-width: 100px;
+}
+
 /* Wishlist Items */
 .wishlist-items {
 	padding: 0;
@@ -401,11 +424,18 @@
 	gap: 16px;
 	padding: 16px 24px;
 	border-bottom: 1px solid #f3f4f6;
-	transition: background-color 0.2s ease;
+	transition: all 0.3s ease;
+	position: relative;
 }
 
 .wishlist-item:hover {
 	background-color: #f9fafb;
+	transform: translateX(4px);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.wishlist-item:hover .wishlist-item-image {
+	transform: scale(1.05);
 }
 
 .wishlist-item:last-child {
@@ -420,12 +450,18 @@
 	border-radius: 8px;
 	overflow: hidden;
 	background-color: #f3f4f6;
+	transition: transform 0.3s ease;
 }
 
 .wishlist-item-image img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
+	transition: filter 0.3s ease;
+}
+
+.wishlist-item:hover .wishlist-item-image img {
+	filter: brightness(1.1);
 }
 
 /* Product Info */
@@ -579,8 +615,10 @@
 	}
 
 	.wishlist-unified-button--floating {
-		padding: 10px 12px;
+		padding: 12px 14px;
 		font-size: 13px;
+		min-width: 48px;
+		min-height: 48px;
 	}
 
 	.wishlist-unified-button--floating .wishlist-unified-text {
@@ -588,8 +626,14 @@
 	}
 
 	.wishlist-unified-button--floating .wishlist-unified-icon svg {
-		width: 18px;
-		height: 18px;
+		width: 20px;
+		height: 20px;
+	}
+
+	/* Enhanced mobile hover effects */
+	.wishlist-unified-button--floating:active {
+		transform: scale(0.95);
+		background-color: var(--button-hover-bg-color, #333) !important;
 	}
 
 	.wishlist-item {
@@ -612,6 +656,24 @@
 
 	.wishlist-popup-footer {
 		flex-direction: column;
+	}
+}
+
+/* Touch device improvements */
+@media (hover: none) and (pointer: coarse) {
+	.wishlist-unified-button:hover {
+		transform: none;
+		filter: none;
+	}
+
+	.wishlist-unified-button:active {
+		transform: scale(0.98);
+		filter: brightness(0.9);
+	}
+
+	.wishlist-unified-button--floating:hover {
+		transform: none;
+		background-color: var(--button-bg-color, #000);
 	}
 }
 

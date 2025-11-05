@@ -7,64 +7,96 @@
 {{ 'wishlist-unified.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'wishlist-unified.js' | asset_url }}" defer></script>
 
-{% if customer %}
-  {% if block.settings.display_mode == 'floating' %}
-    <!-- Floating Mode -->
-    <div
-      class="wishlist-unified-container wishlist-unified--floating"
-      data-wishlist-unified
+{% if block.settings.display_mode == 'floating' %}
+  <!-- Floating Mode (Always show, but handle login in popup) -->
+  <div
+    class="wishlist-unified-container wishlist-unified--floating"
+    data-wishlist-unified
+    {% if customer %}
       data-customer-id="{{ customer.id }}"
-      data-display-mode="floating"
-      data-position-side="{{ block.settings.position_side }}"
-      data-position-vertical="{{ block.settings.position_vertical }}"
-      style="
-        	    position: fixed;
-        --floating-position-side: {{ block.settings.position_side }};
-        --floating-position-vertical: {{ block.settings.position_vertical }};
-        --floating-offset-horizontal: {{ block.settings.offset_horizontal }}px;
-        --floating-offset-vertical: {{ block.settings.offset_vertical }}px;
-        --button-bg-color: {{ block.settings.button_bg_color }};
-        --button-text-color: {{ block.settings.button_text_color }};
-        --button-hover-bg-color: {{ block.settings.button_hover_bg_color }};
-      "
+    {% endif %}
+    data-display-mode="floating"
+    style="
+      position: fixed;
+      {% if block.settings.floating_top != blank %}top: {{ block.settings.floating_top }}px;{% endif %}
+      {% if block.settings.floating_bottom != blank %}bottom: {{ block.settings.floating_bottom }}px;{% endif %}
+      {% if block.settings.floating_left != blank %}left: {{ block.settings.floating_left }}px;{% endif %}
+      {% if block.settings.floating_right != blank %}right: {{ block.settings.floating_right }}px;{% endif %}
+      --button-bg-color: {{ block.settings.button_bg_color }};
+      --button-text-color: {{ block.settings.button_text_color }};
+      --button-hover-bg-color: {{ block.settings.button_hover_bg_color }};
+    "
+  >
+    <!-- Floating Button -->
+    <button
+      type="button"
+      class="wishlist-unified-button wishlist-unified-button--floating"
+	  style="
+		{% if block.settings.button_border_radius != blank %}border-radius: {{ block.settings.button_border_radius }}px;{% endif %}
+		{% if block.settings.button_rotation != blank %}transform: rotate({{ block.settings.button_rotation }}deg);{% endif %}
+	  "
+      data-wishlist-btn
+      aria-label="View wishlist"
+      title="Wishlist"
     >
-      <!-- Floating Button -->
-      <button
-        type="button"
-        style="position: fixed;"
-        class="wishlist-unified-button wishlist-unified-button--floating"
-        data-wishlist-btn
-        aria-label="View my wishlist"
-        title="My Wishlist"
-      >
-        <span class="wishlist-unified-icon">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-                  fill="currentColor"
-            />
-          </svg>
-        </span>
-        <span class="wishlist-unified-text">{{ block.settings.floating_button_text }}</span>
+      <span class="wishlist-unified-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                fill="currentColor"
+          />
+        </svg>
+      </span>
+      <span class="wishlist-unified-text">{{ block.settings.floating_button_text }}</span>
+      {% if customer -%}
         <span class="wishlist-count-badge" data-wishlist-count>0</span>
-      </button>
+      {%- endif %}
+    </button>
 
-      <!-- Wishlist Popup -->
-      <div class="wishlist-popup" data-wishlist-popup>
-        <div class="wishlist-popup-header">
-          <h3>My Wishlist</h3>
-          <button
-            type="button"
-            class="wishlist-popup-close"
-            data-wishlist-close
-            aria-label="Close wishlist"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </button>
-        </div>
+    <!-- Wishlist Popup -->
+    <div class="wishlist-popup" data-wishlist-popup>
+      <div class="wishlist-popup-header">
+        <h3>
+          {% if customer %}My Wishlist{% else %}Wishlist{% endif %}
+        </h3>
+        <button
+          type="button"
+          class="wishlist-popup-close"
+          data-wishlist-close
+          aria-label="Close wishlist"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
 
-        <div class="wishlist-popup-content">
+      <div class="wishlist-popup-content">
+        {% unless customer %}
+          <!-- Login Required State -->
+          <div class="wishlist-login-required" data-wishlist-login-required>
+            <div class="wishlist-login-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h9M10 17l5-5-5-5M13.8 12H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h4>Login Required</h4>
+            <p>Please login to view and manage your wishlist</p>
+            <div class="wishlist-login-actions">
+              <a
+                href="{{ routes.account_login_url }}?return_url={{ request.path | url_encode }}"
+                class="wishlist-btn wishlist-btn--primary"
+              >
+                Login
+              </a>
+              <a
+                href="{{ routes.account_register_url }}?return_url={{ request.path | url_encode }}"
+                class="wishlist-btn wishlist-btn--secondary"
+              >
+                Create Account
+              </a>
+            </div>
+          </div>
+        {% else %}
           <!-- Loading state -->
           <div class="wishlist-loading" data-wishlist-loading>
             <div class="wishlist-spinner"></div>
@@ -90,8 +122,10 @@
           <div class="wishlist-items" data-wishlist-items>
             <!-- Items will be dynamically populated -->
           </div>
-        </div>
+        {% endunless %}
+      </div>
 
+      {% if customer %}
         <!-- Bottom actions -->
         <div class="wishlist-popup-footer" data-wishlist-footer style="display: none;">
           <button
@@ -109,14 +143,16 @@
             Remove All
           </button>
         </div>
-      </div>
-
-      <!-- Backdrop -->
-      <div class="wishlist-backdrop" data-wishlist-backdrop></div>
+      {% endif %}
     </div>
 
-  {% else %}
-    <!-- Regular Button Mode -->
+    <!-- Backdrop -->
+    <div class="wishlist-backdrop" data-wishlist-backdrop></div>
+  </div>
+
+{% else %}
+  <!-- Regular Button Mode -->
+  {% if customer %}
     <div
       class="wishlist-unified-container wishlist-unified--regular"
       data-wishlist-unified
@@ -124,10 +160,21 @@
       data-display-mode="regular"
       data-product-id="{{ product.id }}"
       data-product-handle="{{ product.handle }}"
+	  style="
+		position: fixed;
+		{% if block.settings.floating_top != blank %}top: {{ block.settings.floating_top }}px;{% endif %}
+		{% if block.settings.floating_bottom != blank %}bottom: {{ block.settings.floating_bottom }}px;{% endif %}
+		{% if block.settings.floating_left != blank %}left: {{ block.settings.floating_left }}px;{% endif %}
+		{% if block.settings.floating_right != blank %}right: {{ block.settings.floating_right }}px;{% endif %}
+	  "
     >
       <button
         type="button"
         class="wishlist-unified-button wishlist-unified-button--{{ block.settings.button_style }}"
+		style="
+			{% if block.settings.button_border_radius != blank %}border-radius: {{ block.settings.button_border_radius }}px;{% endif %}
+			{% if block.settings.button_rotation != blank %}transform: rotate({{ block.settings.button_rotation }}deg);{% endif %}
+		"
         data-wishlist-btn
         data-product-id="{{ product.id }}"
         data-product-handle="{{ product.handle }}"
@@ -157,9 +204,7 @@
         </span>
       </button>
     </div>
-  {% endif %}
-{% else %}
-  {% unless block.settings.display_mode == 'floating' %}
+  {% else %}
     <!-- Login required for regular button -->
     <div class="wishlist-unified-container wishlist-unified--regular">
       <button
@@ -183,10 +228,10 @@
             </svg>
           </span>
         {% endif %}
-        <span class="wishlist-unified-text"> Login to add to wishlist </span>
+        <span class="wishlist-unified-text">Login to add to wishlist</span>
       </button>
     </div>
-  {% endunless %}
+  {% endif %}
 {% endif %}
 
 {% schema %}
@@ -268,43 +313,52 @@
       "default": "My Wishlist"
     },
     {
-      "type": "select",
-      "id": "position_side",
-      "label": "Horizontal Position",
-      "options": [
-        { "value": "left", "label": "Left" },
-        { "value": "right", "label": "Right" }
-      ],
-      "default": "left"
+      "type": "header",
+      "content": "Floating Button Position (CSS Values)"
     },
     {
-      "type": "select",
-      "id": "position_vertical",
-      "label": "Vertical Position",
-      "options": [
-        { "value": "top", "label": "Top" },
-        { "value": "bottom", "label": "Bottom" },
-        { "value": "center", "label": "Center" }
-      ],
-      "default": "center"
+      "type": "text",
+      "id": "floating_top",
+      "label": "Top Position (px)",
+      "info": "Distance from top edge. Leave blank to not set. Can use negative values like -10",
+      "placeholder": "e.g. 50 or -10"
     },
     {
-      "type": "range",
-      "id": "offset_horizontal",
-      "label": "Horizontal Offset (px)",
-      "min": 0,
-      "max": 100,
-      "step": 5,
-      "default": 20
+      "type": "text",
+      "id": "floating_bottom",
+      "label": "Bottom Position (px)",
+      "info": "Distance from bottom edge. Leave blank to not set. Can use negative values like -10",
+      "placeholder": "e.g. 50 or -10"
+    },
+
+    {
+      "type": "text",
+      "id": "floating_left",
+      "label": "Left Position (px)",
+      "info": "Distance from left edge. Leave blank to not set. Can use negative values like -10",
+      "placeholder": "e.g. 20 or -10",
+      "default": "20"
     },
     {
-      "type": "range",
-      "id": "offset_vertical",
-      "label": "Vertical Offset (px)",
-      "min": 0,
-      "max": 200,
-      "step": 10,
-      "default": 50
+      "type": "text",
+      "id": "floating_right",
+      "label": "Right Position (px)",
+      "info": "Distance from right edge. Leave blank to not set. Can use negative values like -10",
+      "placeholder": "e.g. 20 or -10"
+    },
+    {
+      "type": "text",
+      "id": "button_border_radius",
+      "label": "Button Border Radius (px)",
+      "info": "Set the border radius for the button. Leave blank to not set.",
+      "placeholder": "e.g. 20 or -10"
+    },
+    {
+      "type": "text",
+      "id": "button_rotation",
+      "label": "Button Rotation (deg)",
+      "info": "Set the rotation for the button. Leave blank to not set.",
+      "placeholder": "e.g. 20 or -10"
     },
     {
       "type": "color",
